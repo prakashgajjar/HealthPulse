@@ -5,25 +5,32 @@ import { Sidebar } from '@/app/components/Sidebar';
 import { AlertCard } from '@/app/components/Cards';
 import { ProtectedRoute } from '@/app/components/ProtectedRoute';
 
-/**
- * User Alerts Page
- */
+import {
+  ShieldAlert,
+  AlertTriangle,
+  Loader2,
+} from 'lucide-react';
+
+/* ===================== CONTENT ===================== */
 function UserAlertsContent() {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all'); // all, high, medium, low
+  const [filter, setFilter] = useState('all'); // all | high | medium | low
 
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/alerts?limit=100');
-        if (!response.ok) throw new Error('Failed to fetch alerts');
-        const data = await response.json();
+        setError(null);
+
+        const res = await fetch('/api/alerts?limit=100');
+        if (!res.ok) throw new Error('Failed to fetch alerts');
+
+        const data = await res.json();
         setAlerts(data.alerts || []);
       } catch (err) {
-        setError(err.message);
+        setError('Unable to load alerts');
       } finally {
         setLoading(false);
       }
@@ -32,68 +39,87 @@ function UserAlertsContent() {
     fetchAlerts();
   }, []);
 
-  const filteredAlerts = filter === 'all' 
-    ? alerts 
-    : alerts.filter(alert => alert.riskLevel === filter);
+  const filteredAlerts =
+    filter === 'all'
+      ? alerts
+      : alerts.filter((a) => a.riskLevel === filter);
 
   const riskStats = {
-    high: alerts.filter(a => a.riskLevel === 'high').length,
-    medium: alerts.filter(a => a.riskLevel === 'medium').length,
-    low: alerts.filter(a => a.riskLevel === 'low').length,
+    high: alerts.filter((a) => a.riskLevel === 'high').length,
+    medium: alerts.filter((a) => a.riskLevel === 'medium').length,
+    low: alerts.filter((a) => a.riskLevel === 'low').length,
   };
 
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 bg-gray-100 p-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Alert History</h1>
 
+      <main className="flex-1 min-h-screen bg-gray-50 px-8 py-6">
+        <div className="max-w-5xl mx-auto space-y-10">
+
+          {/* ================= HEADER ================= */}
+          <header>
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-6 h-6 text-emerald-600" />
+              <h1 className="text-2xl font-semibold text-gray-900">
+                Alert History
+              </h1>
+            </div>
+            <p className="text-sm text-gray-600 mt-1">
+              Health alerts issued for your area
+            </p>
+          </header>
+
+          {/* ================= ERROR ================= */}
           {error && (
-            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded border border-red-300">
-              {error}
+            <div className="flex items-start gap-2 p-4 rounded-lg bg-red-50 border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
-          {/* Risk Summary */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-              <p className="text-sm text-red-600 font-semibold">High Risk</p>
-              <p className="text-3xl font-bold text-red-700">{riskStats.high}</p>
-            </div>
-            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <p className="text-sm text-yellow-600 font-semibold">Medium Risk</p>
-              <p className="text-3xl font-bold text-yellow-700">{riskStats.medium}</p>
-            </div>
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <p className="text-sm text-green-600 font-semibold">Low Risk</p>
-              <p className="text-3xl font-bold text-green-700">{riskStats.low}</p>
-            </div>
-          </div>
+          {/* ================= RISK SUMMARY ================= */}
+          <section>
+            <h2 className="text-sm font-semibold text-gray-500 uppercase mb-4">
+              Risk Summary
+            </h2>
 
-          {/* Filter */}
-          <div className="mb-6 bg-white p-4 rounded-lg shadow">
-            <label className="inline-block mr-4">
-              <span className="font-semibold mr-2">Filter by Risk:</span>
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="px-3 py-1 border rounded focus:outline-none focus:border-blue-500"
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <RiskStat label="High Risk" value={riskStats.high} color="red" />
+              <RiskStat label="Medium Risk" value={riskStats.medium} color="yellow" />
+              <RiskStat label="Low Risk" value={riskStats.low} color="green" />
+            </div>
+          </section>
+
+          {/* ================= FILTER ================= */}
+          <section className="flex flex-wrap gap-2">
+            {['all', 'high', 'medium', 'low'].map((level) => (
+              <button
+                key={level}
+                onClick={() => setFilter(level)}
+                className={`px-4 py-2 text-sm rounded-lg font-medium transition ${
+                  filter === level
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+                }`}
               >
-                <option value="all">All Alerts</option>
-                <option value="high">High Risk Only</option>
-                <option value="medium">Medium Risk Only</option>
-                <option value="low">Low Risk Only</option>
-              </select>
-            </label>
-          </div>
+                {level === 'all' ? 'All Alerts' : `${level.charAt(0).toUpperCase()}${level.slice(1)} Risk`}
+              </button>
+            ))}
+          </section>
 
-          {/* Alerts List */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          {/* ================= ALERT LIST ================= */}
+          <section className="bg-white border border-gray-200 rounded-xl p-6">
             {loading ? (
-              <p className="text-gray-600 text-center py-8">Loading alerts...</p>
+              <div className="flex justify-center py-10">
+                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+              </div>
             ) : filteredAlerts.length === 0 ? (
-              <p className="text-gray-600 text-center py-8">No alerts found</p>
+              <div className="text-center py-10">
+                <p className="text-sm text-gray-600 font-medium">
+                  No alerts found for this filter
+                </p>
+              </div>
             ) : (
               <div className="space-y-4">
                 {filteredAlerts.map((alert) => (
@@ -101,14 +127,32 @@ function UserAlertsContent() {
                 ))}
               </div>
             )}
-          </div>
+          </section>
+
         </div>
       </main>
     </div>
   );
 }
 
-export default function UserAlerts() {
+/* ===================== RISK STAT ===================== */
+function RiskStat({ label, value, color }) {
+  const colors = {
+    red: 'bg-red-50 border-red-200 text-red-700',
+    yellow: 'bg-yellow-50 border-yellow-200 text-yellow-700',
+    green: 'bg-green-50 border-green-200 text-green-700',
+  };
+
+  return (
+    <div className={`p-4 rounded-lg border ${colors[color]}`}>
+      <p className="text-xs font-medium">{label}</p>
+      <p className="text-2xl font-semibold mt-1">{value}</p>
+    </div>
+  );
+}
+
+/* ===================== PAGE EXPORT ===================== */
+export default function UserAlertsPage() {
   return (
     <ProtectedRoute>
       <UserAlertsContent />

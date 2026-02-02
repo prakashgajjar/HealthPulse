@@ -5,13 +5,20 @@ import { Sidebar } from '@/app/components/Sidebar';
 import { StatCard, AlertCard } from '@/app/components/Cards';
 import { ProtectedRoute } from '@/app/components/ProtectedRoute';
 import { useAuth } from '@/app/context/AuthContext';
-import { Heart, AlertTriangle, Activity, TrendingUp, Loader2, Shield } from 'lucide-react';
 
-/**
- * User Dashboard
- */
+import {
+  Activity,
+  TrendingUp,
+  Shield,
+  Heart,
+  AlertTriangle,
+  Loader2,
+} from 'lucide-react';
+
+/* ===================== CONTENT ===================== */
 function UserDashboardContent() {
   const { user } = useAuth();
+
   const [stats, setStats] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,22 +28,21 @@ function UserDashboardContent() {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // Fetch overview
-        const overviewResponse = await fetch('/api/analysis/overview');
-        if (overviewResponse.ok) {
-          const data = await overviewResponse.json();
+        const overviewRes = await fetch('/api/analysis/overview');
+        if (overviewRes.ok) {
+          const data = await overviewRes.json();
           setStats(data.stats);
         }
 
-        // Fetch alerts for user's area
-        const alertsResponse = await fetch('/api/alerts?limit=10');
-        if (alertsResponse.ok) {
-          const data = await alertsResponse.json();
+        const alertsRes = await fetch('/api/alerts?limit=10');
+        if (alertsRes.ok) {
+          const data = await alertsRes.json();
           setAlerts(data.alerts || []);
         }
       } catch (err) {
-        setError(err.message);
+        setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
@@ -45,14 +51,16 @@ function UserDashboardContent() {
     fetchData();
   }, []);
 
+  /* ===================== LOADING ===================== */
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="mb-4 inline-block animate-spin">
-            <div className="border-4 border-blue-200 border-t-blue-600 rounded-full w-12 h-12"></div>
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="flex items-center gap-3 text-gray-600">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm font-medium">Loading your dashboard…</span>
           </div>
-          <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -61,141 +69,133 @@ function UserDashboardContent() {
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50 min-h-screen p-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-10">
-            <h1 className="text-4xl font-black text-gray-900">👋 Welcome, {user?.name}!</h1>
-            <p className="text-gray-600 text-lg mt-2">📍 Your local health dashboard for <span className="font-bold text-blue-600">{user?.area}</span></p>
-          </div>
 
+      <main className="flex-1 min-h-screen bg-gray-50 px-8 py-6">
+        <div className="max-w-6xl mx-auto space-y-10">
+
+          {/* ================= HEADER ================= */}
+          <header>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Welcome, {user?.name}
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Health overview for your area: <span className="font-medium">{user?.area}</span>
+            </p>
+          </header>
+
+          {/* ================= ERROR ================= */}
           {error && (
-            <div className="mb-8 p-5 bg-red-100 text-red-800 rounded-lg border-l-4 border-red-500 shadow-md flex items-center gap-3">
-              <span className="text-2xl">⚠️</span>
-              <div>
-                <p className="font-bold">Error Loading Data</p>
-                <p className="text-sm">{error}</p>
-              </div>
+            <div className="flex items-start gap-2 p-4 rounded-lg bg-red-50 border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
-          {/* Statistics for User's Area */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <StatCard
-              label="Cases Today in Your Area"
-              value={stats?.todayCases || 0}
-              icon="📊"
-              subtext="Health cases reported today"
-              trend={Math.round(Math.random() * 15)}
-              trendDirection={Math.random() > 0.5 ? 'up' : 'down'}
-            />
-            <StatCard
-              label="This Week"
-              value={stats?.weekCases || 0}
-              icon="📈"
-              subtext="Cases reported this week"
-              trend={Math.round(Math.random() * 12)}
-              trendDirection="up"
-            />
-            <StatCard
-              label="This Month"
-              value={stats?.monthCases || 0}
-              icon="📋"
-              subtext="Total cases this month"
-              trend={Math.round(Math.random() * 20)}
-              trendDirection="up"
-            />
-          </div>
+          {/* ================= STATS ================= */}
+          <section>
+            <h2 className="text-sm font-semibold text-gray-500 uppercase mb-4">
+              Health Summary
+            </h2>
 
-          {/* Health Tips */}
-          <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200 mb-10">
-            <div className="flex items-center gap-3 mb-8">
-              <h2 className="text-3xl font-black text-gray-900">💡 Preventive Health Tips</h2>
-              <span className="text-sm font-bold text-blue-600">STAY SAFE</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <StatCard
+                label="Cases Today"
+                value={stats?.todayCases || 0}
+                icon={Activity}
+                subtext="Reported in last 24 hours"
+              />
+              <StatCard
+                label="This Week"
+                value={stats?.weekCases || 0}
+                icon={TrendingUp}
+                subtext="Last 7 days"
+              />
+              <StatCard
+                label="This Month"
+                value={stats?.monthCases || 0}
+                icon={Shield}
+                subtext="Last 30 days"
+              />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-l-4 border-green-500 hover:shadow-lg transition-shadow">
-                <h3 className="font-bold text-green-900 mb-2 text-lg flex items-center gap-2">🧼 Hygiene</h3>
-                <p className="text-sm text-gray-700 font-medium">Wash hands regularly with soap and water for at least 20 seconds, especially before eating and after touching surfaces.</p>
-              </div>
-              <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-l-4 border-blue-500 hover:shadow-lg transition-shadow">
-                <h3 className="font-bold text-blue-900 mb-2 text-lg flex items-center gap-2">😷 Precautions</h3>
-                <p className="text-sm text-gray-700 font-medium">Wear masks in crowded areas and maintain safe distance from unwell individuals when needed.</p>
-              </div>
-              <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-l-4 border-purple-500 hover:shadow-lg transition-shadow">
-                <h3 className="font-bold text-purple-900 mb-2 text-lg flex items-center gap-2">💪 Immunity</h3>
-                <p className="text-sm text-gray-700 font-medium">Stay hydrated, eat nutritious food, exercise regularly, and get 7-8 hours of quality sleep daily.</p>
-              </div>
-              <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border-l-4 border-orange-500 hover:shadow-lg transition-shadow">
-                <h3 className="font-bold text-orange-900 mb-2 text-lg flex items-center gap-2">🏥 Medical</h3>
-                <p className="text-sm text-gray-700 font-medium">Stay updated with vaccinations and consult a healthcare provider if you experience any symptoms.</p>
-              </div>
-            </div>
-          </div>
+          </section>
 
-          {/* Recent Alerts */}
-          <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
-            <div className="flex items-center gap-3 mb-8">
-              <h2 className="text-3xl font-black text-gray-900">🚨 Recent Alerts for Your Area</h2>
-              <span className="text-sm font-bold bg-red-500 text-white px-3 py-1 rounded-full">
-                {alerts.length} NEW
+          {/* ================= HEALTH TIPS ================= */}
+          <section className="bg-white border border-gray-200 rounded-xl p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Heart className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-lg font-semibold text-gray-900">
+                Preventive Health Guidance
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Tip
+                title="Personal Hygiene"
+                text="Wash hands frequently with soap and water, especially before meals and after public exposure."
+              />
+              <Tip
+                title="Crowd Precautions"
+                text="Avoid crowded places during outbreaks and follow local health advisories."
+              />
+              <Tip
+                title="Immunity Support"
+                text="Maintain a balanced diet, stay hydrated, exercise regularly, and get adequate sleep."
+              />
+              <Tip
+                title="Medical Attention"
+                text="Seek medical advice promptly if you experience symptoms or discomfort."
+              />
+            </div>
+          </section>
+
+          {/* ================= ALERTS ================= */}
+          <section className="bg-white border border-gray-200 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Recent Alerts
+              </h2>
+              <span className="text-xs font-medium text-gray-500">
+                {alerts.length} active
               </span>
             </div>
+
             {alerts.length === 0 ? (
-              <div className="text-center py-12">
-                <span className="text-5xl mb-4 block">✅</span>
-                <p className="text-gray-600 font-semibold text-lg">No active alerts for your area</p>
-                <p className="text-gray-500 text-sm mt-2">Your area is currently safe. Stay vigilant!</p>
+              <div className="text-center py-10">
+                <Shield className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
+                <p className="text-sm text-gray-600 font-medium">
+                  No active alerts for your area
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Continue following preventive measures
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
                 {alerts.map((alert) => (
-                  <div
-                    key={alert._id}
-                    className={`p-6 rounded-lg border-l-4 shadow-sm hover:shadow-md transition-all ${
-                      alert.riskLevel === 'high'
-                        ? 'bg-gradient-to-r from-red-50 to-red-100 border-red-500'
-                        : alert.riskLevel === 'medium'
-                        ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-500'
-                        : 'bg-gradient-to-r from-green-50 to-green-100 border-green-500'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                          <span className="text-2xl animate-pulse">🚨</span>
-                          {alert.title}
-                        </h3>
-                        <p className="text-sm text-gray-700 mt-2 font-medium">{alert.message}</p>
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-600 mt-3 font-semibold">
-                          <span className="flex items-center gap-1">🦠 {alert.disease}</span>
-                          <span className="flex items-center gap-1">📅 {new Date(alert.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                        </div>
-                      </div>
-                      <span
-                        className={`px-4 py-2 rounded-full text-xs font-black tracking-wider flex-shrink-0 ${
-                          alert.riskLevel === 'high'
-                            ? 'bg-red-500 text-white'
-                            : alert.riskLevel === 'medium'
-                            ? 'bg-yellow-500 text-white'
-                            : 'bg-green-500 text-white'
-                        }`}
-                      >
-                        {alert.riskLevel === 'high' ? '🔴 HIGH' : alert.riskLevel === 'medium' ? '🟡 MEDIUM' : '🟢 LOW'}
-                      </span>
-                    </div>
-                  </div>
+                  <AlertCard key={alert._id} alert={alert} />
                 ))}
               </div>
             )}
-          </div>
+          </section>
+
         </div>
       </main>
     </div>
   );
 }
 
-export default function UserDashboard() {
+/* ===================== TIP CARD ===================== */
+function Tip({ title, text }) {
+  return (
+    <div className="p-4 rounded-lg border border-gray-200 bg-gray-50">
+      <h3 className="font-medium text-gray-900 mb-1">{title}</h3>
+      <p className="text-sm text-gray-600">{text}</p>
+    </div>
+  );
+}
+
+/* ===================== PAGE EXPORT ===================== */
+export default function UserDashboardPage() {
   return (
     <ProtectedRoute>
       <UserDashboardContent />

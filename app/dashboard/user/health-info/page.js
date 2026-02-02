@@ -5,11 +5,18 @@ import { Sidebar } from '@/app/components/Sidebar';
 import { ProtectedRoute } from '@/app/components/ProtectedRoute';
 import { useAuth } from '@/app/context/AuthContext';
 
-/**
- * User Area Health Information Page
- */
+import {
+  Activity,
+  Shield,
+  AlertTriangle,
+  Phone,
+  Loader2,
+} from 'lucide-react';
+
+/* ===================== CONTENT ===================== */
 function HealthInfoContent() {
   const { user } = useAuth();
+
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,12 +25,15 @@ function HealthInfoContent() {
     const fetchReports = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/reports?days=30');
-        if (!response.ok) throw new Error('Failed to fetch reports');
-        const data = await response.json();
+        setError(null);
+
+        const res = await fetch('/api/reports?days=30');
+        if (!res.ok) throw new Error('Failed to fetch health reports');
+
+        const data = await res.json();
         setReports(data.reports || []);
       } catch (err) {
-        setError(err.message);
+        setError('Unable to load health information');
       } finally {
         setLoading(false);
       }
@@ -32,13 +42,10 @@ function HealthInfoContent() {
     fetchReports();
   }, []);
 
-  // Group by disease
+  /* ===================== AGGREGATION ===================== */
   const diseaseMap = {};
-  reports.forEach(report => {
-    if (!diseaseMap[report.disease]) {
-      diseaseMap[report.disease] = 0;
-    }
-    diseaseMap[report.disease] += report.caseCount;
+  reports.forEach((r) => {
+    diseaseMap[r.disease] = (diseaseMap[r.disease] || 0) + r.caseCount;
   });
 
   const topDiseases = Object.entries(diseaseMap)
@@ -49,87 +56,125 @@ function HealthInfoContent() {
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 bg-gray-100 p-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Area Health Information</h1>
-          <p className="text-gray-600 mb-8">Health status and disease distribution in {user?.area}</p>
 
+      <main className="flex-1 min-h-screen bg-gray-50 px-8 py-6">
+        <div className="max-w-5xl mx-auto space-y-10">
+
+          {/* ================= HEADER ================= */}
+          <header>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Area Health Information
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Health trends and guidance for <span className="font-medium">{user?.area}</span>
+            </p>
+          </header>
+
+          {/* ================= ERROR ================= */}
           {error && (
-            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded border border-red-300">
-              {error}
+            <div className="flex items-start gap-2 p-4 rounded-lg bg-red-50 border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
+          {/* ================= LOADING ================= */}
           {loading ? (
-            <div className="flex items-center justify-center min-h-screen">
-              <div className="text-center">
-                <div className="mb-4 inline-block animate-spin">
-                  <div className="border-4 border-blue-200 border-t-blue-600 rounded-full w-12 h-12"></div>
-                </div>
-                <p className="text-gray-600">Loading health data...</p>
-              </div>
+            <div className="flex justify-center py-20">
+              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
             </div>
           ) : (
             <>
-              {/* Top Diseases */}
-              <div className="bg-white p-6 rounded-lg shadow mb-8">
-                <h2 className="text-2xl font-bold mb-4">🦠 Top Diseases in Your Area (Last 30 Days)</h2>
+              {/* ================= TOP DISEASES ================= */}
+              <section className="bg-white border border-gray-200 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <Activity className="w-5 h-5 text-emerald-600" />
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Most Reported Diseases (Last 30 Days)
+                  </h2>
+                </div>
+
                 {topDiseases.length === 0 ? (
-                  <p className="text-gray-600 text-center py-8">No disease data available</p>
+                  <p className="text-sm text-gray-600 text-center py-8">
+                    No disease data available for this period
+                  </p>
                 ) : (
                   <div className="space-y-3">
                     {topDiseases.map((item, index) => (
-                      <div key={item.disease} className="flex items-center justify-between p-4 bg-gray-50 rounded hover:bg-gray-100 transition">
+                      <div
+                        key={item.disease}
+                        className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-gray-50"
+                      >
                         <div className="flex items-center gap-4">
-                          <span className="text-2xl font-bold text-gray-400 w-8">{index + 1}</span>
+                          <span className="text-sm font-medium text-gray-400 w-6">
+                            #{index + 1}
+                          </span>
                           <div>
-                            <p className="font-semibold text-gray-900">{item.disease}</p>
-                            <p className="text-sm text-gray-600">Cases reported</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {item.disease}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Reported cases
+                            </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-3xl font-bold text-blue-600">{item.count}</p>
-                        </div>
+                        <p className="text-lg font-semibold text-emerald-600">
+                          {item.count}
+                        </p>
                       </div>
                     ))}
                   </div>
                 )}
-              </div>
+              </section>
 
-              {/* Health Advice */}
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-2xl font-bold mb-4">💊 Health Guidance</h2>
-                <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-                    <h3 className="font-semibold text-blue-900 mb-2">✓ When to Seek Help</h3>
-                    <ul className="text-sm text-gray-700 space-y-1">
-                      <li>• High fever lasting more than 3 days</li>
-                      <li>• Severe cough or difficulty breathing</li>
-                      <li>• Persistent body aches or weakness</li>
-                      <li>• Any unusual or concerning symptoms</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
-                    <h3 className="font-semibold text-green-900 mb-2">🛡️ Prevention Measures</h3>
-                    <ul className="text-sm text-gray-700 space-y-1">
-                      <li>• Maintain proper hygiene and sanitation</li>
-                      <li>• Drink clean water and eat nutritious food</li>
-                      <li>• Get adequate sleep and exercise regularly</li>
-                      <li>• Stay updated with recommended vaccinations</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
-                    <h3 className="font-semibold text-purple-900 mb-2">📞 Emergency Contacts</h3>
-                    <ul className="text-sm text-gray-700 space-y-1">
-                      <li>• Emergency: 112</li>
-                      <li>• Health Helpline: 1075</li>
-                      <li>• COVID Helpline: 1075</li>
-                    </ul>
-                  </div>
+              {/* ================= HEALTH GUIDANCE ================= */}
+              <section className="bg-white border border-gray-200 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <Shield className="w-5 h-5 text-blue-600" />
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Health Guidance
+                  </h2>
                 </div>
-              </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <GuidanceCard
+                    title="When to Seek Medical Help"
+                    items={[
+                      'High fever lasting more than 3 days',
+                      'Breathing difficulty or chest pain',
+                      'Persistent weakness or dehydration',
+                      'Any sudden or unusual symptoms',
+                    ]}
+                    color="blue"
+                  />
+
+                  <GuidanceCard
+                    title="Preventive Measures"
+                    items={[
+                      'Maintain personal hygiene and sanitation',
+                      'Consume clean water and nutritious food',
+                      'Exercise regularly and get adequate rest',
+                      'Follow vaccination recommendations',
+                    ]}
+                    color="green"
+                  />
+                </div>
+              </section>
+
+              {/* ================= EMERGENCY ================= */}
+              <section className="bg-gray-900 text-white rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Phone className="w-5 h-5 text-red-400" />
+                  <h2 className="text-lg font-semibold">
+                    Emergency Contacts
+                  </h2>
+                </div>
+
+                <ul className="text-sm space-y-1 text-gray-300">
+                  <li>Emergency Services: <span className="text-white font-medium">112</span></li>
+                  <li>Health Helpline: <span className="text-white font-medium">1075</span></li>
+                </ul>
+              </section>
             </>
           )}
         </div>
@@ -138,7 +183,29 @@ function HealthInfoContent() {
   );
 }
 
-export default function UserHealthInfo() {
+/* ===================== GUIDANCE CARD ===================== */
+function GuidanceCard({ title, items, color }) {
+  const styles = {
+    blue: 'border-blue-200 bg-blue-50',
+    green: 'border-green-200 bg-green-50',
+  };
+
+  return (
+    <div className={`p-4 rounded-lg border ${styles[color]}`}>
+      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+        {title}
+      </h3>
+      <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+        {items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ===================== PAGE EXPORT ===================== */
+export default function UserHealthInfoPage() {
   return (
     <ProtectedRoute>
       <HealthInfoContent />
