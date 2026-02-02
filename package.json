@@ -1,0 +1,63 @@
+{
+  "name": "health-analytics-system",
+  "displayName": "Health Analytics System",
+  "description": "A complete digital health analytics system for community health trend analysis and management",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Health Analytics Team",
+  "license": "MIT",
+  "homepage": "/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/health-analytics-system"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/health-analytics-system/issues"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node lib/seed.js",
+    "seed:reset": "node lib/seed.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "bcryptjs": "^2.4.3",
+    "date-fns": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^8.5.1",
+    "lucide-react": "^0.263.1",
+    "mongoose": "^8.0.0",
+    "next": "^14.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "25.2.0",
+    "@types/react": "19.2.10",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.55.0",
+    "eslint-config-next": "^14.1.0",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "health",
+    "analytics",
+    "medical",
+    "dashboard",
+    "alerts",
+    "next.js",
+    "mongodb",
+    "tailwindcss"
+  ]
+}
