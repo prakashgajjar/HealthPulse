@@ -1,36 +1,49 @@
 'use client';
 
-import React, { createContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 
 /**
- * AuthContext manages authentication state across the application
- * - User login/logout
- * - Token persistence
- * - User role and information
+ * AuthContext
+ * - Uses HttpOnly cookies (server is source of truth)
+ * - Restores session on refresh
+ * - No token stored in JS
  */
-export const AuthContext = createContext();
+
+export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const router = useRouter();
+
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Initialize auth from cookie on mount
+  /**
+   * Restore session on page refresh
+   */
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Get token from cookie
-        const authToken = Cookies.get('authToken');
-        if (authToken) {
-          setToken(authToken);
-          // Token is valid, user will be fetched from login
+        const res = await fetch('/api/auth/me', {
+          credentials: 'include',
+        });
+
+        if (!res.ok) {
+          setUser(null);
+          return;
         }
+
+        const data = await res.json();
+        setUser(data.user);
       } catch (err) {
-        console.error('Auth initialization error:', err);
+        console.error('Auth init failed:', err);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -39,79 +52,87 @@ export function AuthProvider({ children }) {
     initAuth();
   }, []);
 
+  /**
+   * Login
+   */
+  const login = async (email, password) => {
+    try {
+      setError(null);
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Login failed');
+      }
+
+      const data = await res.json();
+      setUser(data.user);
+
+      return data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  /**
+   * Signup
+   */
   const signup = async (name, email, password, area, role = 'user') => {
     try {
       setError(null);
-      const response = await fetch('/api/auth/signup', {
+
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, area, role }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
+      if (!res.ok) {
+        const data = await res.json();
         throw new Error(data.error || 'Signup failed');
       }
 
-      const data = await response.json();
-      return data;
+      return await res.json();
     } catch (err) {
       setError(err.message);
       throw err;
     }
   };
 
-  const login = async (email, password) => {
-    try {
-      setError(null);
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Login failed');
-      }
-
-      const data = await response.json();
-      setToken(data.token);
-      setUser(data.user);
-      
-      // Token is set in HTTP-only cookie by server
-      return data;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    }
-  };
-
+  /**
+   * Logout
+   */
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
+        credentials: 'include',
       });
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
       setUser(null);
-      setToken(null);
-      Cookies.remove('authToken');
-      router.push('/login');
+      router.replace('/login');
     }
   };
 
   const value = {
     user,
-    token,
+    setUser,
     loading,
     error,
     setError,
-    signup,
     login,
+    signup,
     logout,
-    isAuthenticated: !!token && !!user,
+    isAuthenticated: !!user,
   };
 
   return (
@@ -122,9 +143,9 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  const context = React.useContext(AuthContext);
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error('useAuth must be used inside AuthProvider');
   }
   return context;
 }

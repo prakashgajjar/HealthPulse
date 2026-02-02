@@ -5,7 +5,7 @@ import {
   TrendingDown,
   MapPin,
   Clock,
-  Virus,
+  Biohazard,
   ShieldAlert,
 } from 'lucide-react';
 
@@ -100,7 +100,7 @@ export function AlertCard({ alert, onDelete, onToggle }) {
           {/* Meta */}
           <div className="flex flex-wrap gap-4 text-xs text-gray-600">
             <span className="flex items-center gap-1">
-              <Virus className="w-4 h-4" />
+              <Biohazard className="w-4 h-4" />
               {alert.disease}
             </span>
             <span className="flex items-center gap-1">

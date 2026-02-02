@@ -1,22 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Sidebar } from '@/app/components/Sidebar';
-import { AlertCard } from '@/app/components/Cards';
-import { ProtectedRoute } from '@/app/components/ProtectedRoute';
+import { useState, useEffect } from "react";
+import { Sidebar } from "@/app/components/Sidebar";
+import { AlertCard } from "@/app/components/Cards";
+import { ProtectedRoute } from "@/app/components/ProtectedRoute";
 
-import {
-  ShieldAlert,
-  AlertTriangle,
-  Loader2,
-} from 'lucide-react';
+import { ShieldAlert, AlertTriangle, Loader2 } from "lucide-react";
 
 /* ===================== CONTENT ===================== */
 function UserAlertsContent() {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all'); // all | high | medium | low
+  const [filter, setFilter] = useState("all"); // all | high | medium | low
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -24,13 +20,13 @@ function UserAlertsContent() {
         setLoading(true);
         setError(null);
 
-        const res = await fetch('/api/alerts?limit=100');
-        if (!res.ok) throw new Error('Failed to fetch alerts');
+        const res = await fetch("/api/alerts/get?limit=50");
+        if (!res.ok) throw new Error("Failed to fetch alerts");
 
         const data = await res.json();
         setAlerts(data.alerts || []);
       } catch (err) {
-        setError('Unable to load alerts');
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -40,14 +36,12 @@ function UserAlertsContent() {
   }, []);
 
   const filteredAlerts =
-    filter === 'all'
-      ? alerts
-      : alerts.filter((a) => a.riskLevel === filter);
+    filter === "all" ? alerts : alerts.filter((a) => a.riskLevel === filter);
 
   const riskStats = {
-    high: alerts.filter((a) => a.riskLevel === 'high').length,
-    medium: alerts.filter((a) => a.riskLevel === 'medium').length,
-    low: alerts.filter((a) => a.riskLevel === 'low').length,
+    high: alerts.filter((a) => a.riskLevel === "high").length,
+    medium: alerts.filter((a) => a.riskLevel === "medium").length,
+    low: alerts.filter((a) => a.riskLevel === "low").length,
   };
 
   return (
@@ -56,7 +50,6 @@ function UserAlertsContent() {
 
       <main className="flex-1 min-h-screen bg-gray-50 px-8 py-6">
         <div className="max-w-5xl mx-auto space-y-10">
-
           {/* ================= HEADER ================= */}
           <header>
             <div className="flex items-center gap-2">
@@ -86,24 +79,30 @@ function UserAlertsContent() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <RiskStat label="High Risk" value={riskStats.high} color="red" />
-              <RiskStat label="Medium Risk" value={riskStats.medium} color="yellow" />
+              <RiskStat
+                label="Medium Risk"
+                value={riskStats.medium}
+                color="yellow"
+              />
               <RiskStat label="Low Risk" value={riskStats.low} color="green" />
             </div>
           </section>
 
           {/* ================= FILTER ================= */}
           <section className="flex flex-wrap gap-2">
-            {['all', 'high', 'medium', 'low'].map((level) => (
+            {["all", "high", "medium", "low"].map((level) => (
               <button
                 key={level}
                 onClick={() => setFilter(level)}
                 className={`px-4 py-2 text-sm rounded-lg font-medium transition ${
                   filter === level
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+                    ? "bg-emerald-600 text-white"
+                    : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                {level === 'all' ? 'All Alerts' : `${level.charAt(0).toUpperCase()}${level.slice(1)} Risk`}
+                {level === "all"
+                  ? "All Alerts"
+                  : `${level.charAt(0).toUpperCase()}${level.slice(1)} Risk`}
               </button>
             ))}
           </section>
@@ -128,7 +127,6 @@ function UserAlertsContent() {
               </div>
             )}
           </section>
-
         </div>
       </main>
     </div>
@@ -138,9 +136,9 @@ function UserAlertsContent() {
 /* ===================== RISK STAT ===================== */
 function RiskStat({ label, value, color }) {
   const colors = {
-    red: 'bg-red-50 border-red-200 text-red-700',
-    yellow: 'bg-yellow-50 border-yellow-200 text-yellow-700',
-    green: 'bg-green-50 border-green-200 text-green-700',
+    red: "bg-red-50 border-red-200 text-red-700",
+    yellow: "bg-yellow-50 border-yellow-200 text-yellow-700",
+    green: "bg-green-50 border-green-200 text-green-700",
   };
 
   return (

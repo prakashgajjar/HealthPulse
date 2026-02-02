@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 function AdminOverviewContent() {
-  const { user } = useAuth();
+  const { user,setUser } = useAuth();
 
   const [stats, setStats] = useState(null);
   const [trendingDiseases, setTrendingDiseases] = useState([]);
@@ -43,6 +43,32 @@ function AdminOverviewContent() {
 
     fetchOverview();
   }, []);
+
+
+   useEffect(() => {
+      const initAuth = async () => {
+        try {
+          const res = await fetch('/api/auth/me', {
+            credentials: 'include',
+          });
+  
+          if (!res.ok) {
+            setUser(null);
+            return;
+          }
+  
+          const data = await res.json();
+          setUser(data.user);
+        } catch (err) {
+          console.error('Auth init failed:', err);
+          setUser(null);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      initAuth();
+    }, []);
 
   /* ================= LOADING ================= */
   if (loading) {

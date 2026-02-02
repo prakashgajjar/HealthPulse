@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/app/components/Sidebar';
-import { AlertCard } from '@/app/components/Cards';
+import  {AlertCard}  from '@/app/components/Cards';
 import { AdminRoute } from '@/app/components/ProtectedRoute';
 import {
   Bell,
@@ -32,7 +32,7 @@ function AlertsContent() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch('/api/alerts?limit=50');
+      const res = await fetch('/api/alerts/adminget?limit=50');
       if (!res.ok) throw new Error('Failed to fetch alerts');
 
       const data = await res.json();
@@ -62,7 +62,7 @@ function AlertsContent() {
     try {
       setSubmitting(true);
 
-      const res = await fetch('/api/alerts', {
+      const res = await fetch('/api/alerts/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

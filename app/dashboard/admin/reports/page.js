@@ -7,7 +7,7 @@ import {
   FileText,
   PlusCircle,
   MapPin,
-  Virus,
+  Biohazard,
   Calendar,
   Hash,
   AlertTriangle,
@@ -128,7 +128,7 @@ function ReportsContent() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input
-                  icon={Virus}
+                  icon={Biohazard}
                   label="Disease Name"
                   value={disease}
                   onChange={setDisease}
