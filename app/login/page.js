@@ -124,6 +124,19 @@ export default function LoginPage() {
                   123456
                 </span>
               </p>
+
+              <p>
+                <span className="font-medium">Email:</span>{" "}
+                <span className="font-mono bg-white px-2 py-0.5 rounded border">
+                  user@gmail.com
+                </span>
+              </p>
+              <p>
+                <span className="font-medium">Password:</span>{" "}
+                <span className="font-mono bg-white px-2 py-0.5 rounded border">
+                  123456
+                </span>
+              </p>
             </div>
 
             <p className="mt-2 text-xs text-gray-500">

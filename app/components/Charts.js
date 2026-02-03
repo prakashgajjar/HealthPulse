@@ -87,7 +87,7 @@ export function DiseaseDistributionChart({ data = [], height = 320 }) {
           fontSize={12}
           stroke="#6b7280"
         />
-        <Tooltip content={<ChartTooltip />} />
+        <Tooltip />
         <Bar
           dataKey="count"
           fill="#10b981"

@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
 
-import { Sidebar } from '@/app/components/Sidebar';
-import { AdminRoute } from '@/app/components/ProtectedRoute';
-import { StatCard } from '@/app/components/Cards';
-import { TrendChart, DiseaseDistributionChart } from '@/app/components/Charts';
+import { Sidebar } from "@/app/components/Sidebar";
+import { AdminRoute } from "@/app/components/ProtectedRoute";
+import { StatCard } from "@/app/components/Cards";
+import { TrendChart, DiseaseDistributionChart } from "@/app/components/Charts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 import {
   TrendingUp,
@@ -16,7 +17,7 @@ import {
   AlertTriangle,
   Info,
   Loader2,
-} from 'lucide-react';
+} from "lucide-react";
 
 /* ================= CONTENT ================= */
 function TrendsContent() {
@@ -25,6 +26,14 @@ function TrendsContent() {
   const [diseaseData, setDiseaseData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const COLORS = [
+    "#10b981", // emerald
+    "#3b82f6", // blue
+    "#f59e0b", // amber
+    "#ef4444", // red
+    "#8b5cf6", // violet
+  ];
 
   const [stats, setStats] = useState({
     totalCases: 0,
@@ -42,9 +51,11 @@ function TrendsContent() {
       setLoading(true);
       setError(null);
 
-      const res = await axios.get('/api/analysis/trends', {
+      const res = await axios.get("/api/analysis/trends", {
         params: { days: timePeriod },
       });
+
+      console.log("Trend Analysis Response:", res.data);
 
       /*
         API RESPONSE FORMAT:
@@ -64,23 +75,17 @@ function TrendsContent() {
         ([name, values]) => ({
           name,
           cases: Object.values(values).reduce((sum, v) => sum + v, 0),
-        })
+        }),
       );
 
       setDiseaseData(diseaseArray);
 
       /* ---------- STATS ---------- */
-      const totalCases = trendData.reduce(
-        (sum, d) => sum + (d.cases || 0),
-        0
-      );
+      const totalCases = trendData.reduce((sum, d) => sum + (d.cases || 0), 0);
 
       const avgDaily = Math.round(totalCases / timePeriod);
 
-      const peakDay = Math.max(
-        0,
-        ...trendData.map((d) => d.cases || 0)
-      );
+      const peakDay = Math.max(0, ...trendData.map((d) => d.cases || 0));
 
       setStats({
         totalCases,
@@ -89,7 +94,7 @@ function TrendsContent() {
         activeRegions: 0, // optional – add later if area data exists
       });
     } catch (err) {
-      setError('Failed to load trend analytics');
+      setError("Failed to load trend analytics");
     } finally {
       setLoading(false);
     }
@@ -101,7 +106,6 @@ function TrendsContent() {
 
       <main className="flex-1 min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto space-y-10">
-
           {/* ================= HEADER ================= */}
           <header className="flex justify-between items-center">
             <div>
@@ -124,8 +128,8 @@ function TrendsContent() {
                   onClick={() => setTimePeriod(d)}
                   className={`px-3 py-1.5 text-sm rounded-lg font-medium transition ${
                     timePeriod === d
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+                      ? "bg-emerald-600 text-white"
+                      : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   {d}d
@@ -175,9 +179,7 @@ function TrendsContent() {
           {/* ================= CHARTS ================= */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 bg-white p-6 rounded-xl border">
-              <h2 className="text-lg font-semibold mb-4">
-                Case Trends
-              </h2>
+              <h2 className="text-lg font-semibold mb-4">Case Trends</h2>
 
               {loading ? (
                 <div className="h-80 flex items-center justify-center">
@@ -189,9 +191,7 @@ function TrendsContent() {
             </div>
 
             <div className="bg-white p-6 rounded-xl border">
-              <h2 className="text-lg font-semibold mb-4">
-                Top Diseases
-              </h2>
+              <h2 className="text-lg font-semibold mb-4">Top Diseases</h2>
 
               {loading ? (
                 <div className="space-y-3">
@@ -202,11 +202,35 @@ function TrendsContent() {
                     />
                   ))}
                 </div>
+              ) : diseaseData.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  No disease data available
+                </p>
               ) : (
-                <DiseaseDistributionChart
-                  data={diseaseData}
-                  height={320}
-                />
+                <div className="h-[320px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={diseaseData}
+                        dataKey="cases"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={110}
+                        label
+                      >
+                        {diseaseData.map((_, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               )}
             </div>
           </section>
@@ -215,9 +239,9 @@ function TrendsContent() {
           <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-6">
             <Info className="w-6 h-6 text-blue-600 mt-0.5" />
             <p className="text-sm text-gray-700">
-              This view highlights disease trends over time to identify
-              growth patterns, peak periods, and high-risk zones for
-              proactive planning.
+              This view highlights disease trends over time to identify growth
+              patterns, peak periods, and high-risk zones for proactive
+              planning.
             </p>
           </div>
         </div>
