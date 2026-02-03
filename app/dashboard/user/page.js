@@ -33,6 +33,8 @@ function UserDashboardContent() {
         const overviewRes = await fetch('/api/analysis/overview');
         if (overviewRes.ok) {
           const data = await overviewRes.json();
+
+          console.log('Overview data:', data);
           setStats(data.stats);
         }
 

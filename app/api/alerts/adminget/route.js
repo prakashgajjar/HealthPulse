@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Alert from '@/app/models/Alert';
 import { getAuthFromRequest } from '@/lib/middleware';
+import User from '@/app/models/User';
 
 export async function GET(request) {
   try {
@@ -9,6 +10,8 @@ export async function GET(request) {
 
     // 1️⃣ Authentication
     const auth = await getAuthFromRequest(request);
+
+    const user = await User.findById(auth.userId);
     if (!auth) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -29,8 +32,8 @@ export async function GET(request) {
     };
 
     // Regular users only see their area alerts
-    if (auth.role === 'user') {
-      filter.area = auth.area;
+    if (user.role === 'user') {
+      filter.area = user.area;
     }
 
     // 4️⃣ Query DB

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+
 import { Sidebar } from '@/app/components/Sidebar';
 import { AdminRoute } from '@/app/components/ProtectedRoute';
 import { StatCard } from '@/app/components/Cards';
@@ -24,6 +25,7 @@ function TrendsContent() {
   const [diseaseData, setDiseaseData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [stats, setStats] = useState({
     totalCases: 0,
     avgDaily: 0,
@@ -44,19 +46,48 @@ function TrendsContent() {
         params: { days: timePeriod },
       });
 
-      const { trends = [], diseases = [] } = res.data.data || {};
+      /*
+        API RESPONSE FORMAT:
+        {
+          trendData: [{ date, cases }],
+          diseaseData: { diseaseName: { date: cases } }
+        }
+      */
 
-      setTrendData(trends);
-      setDiseaseData(diseases);
+      const { trendData = [], diseaseData = {} } = res.data || {};
 
-      const totalCases = trends.reduce((s, d) => s + (d.total || 0), 0);
+      /* ---------- SET TREND DATA ---------- */
+      setTrendData(trendData);
+
+      /* ---------- CONVERT DISEASE OBJECT → ARRAY ---------- */
+      const diseaseArray = Object.entries(diseaseData).map(
+        ([name, values]) => ({
+          name,
+          cases: Object.values(values).reduce((sum, v) => sum + v, 0),
+        })
+      );
+
+      setDiseaseData(diseaseArray);
+
+      /* ---------- STATS ---------- */
+      const totalCases = trendData.reduce(
+        (sum, d) => sum + (d.cases || 0),
+        0
+      );
+
       const avgDaily = Math.round(totalCases / timePeriod);
-      const peakDay = Math.max(0, ...trends.map((d) => d.total || 0));
-      const activeRegions = new Set(
-        trends.flatMap((d) => d.byArea?.map((a) => a.area) || [])
-      ).size;
 
-      setStats({ totalCases, avgDaily, peakDay, activeRegions });
+      const peakDay = Math.max(
+        0,
+        ...trendData.map((d) => d.cases || 0)
+      );
+
+      setStats({
+        totalCases,
+        avgDaily,
+        peakDay,
+        activeRegions: 0, // optional – add later if area data exists
+      });
     } catch (err) {
       setError('Failed to load trend analytics');
     } finally {
@@ -165,11 +196,17 @@ function TrendsContent() {
               {loading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+                    <div
+                      key={i}
+                      className="h-10 bg-gray-100 rounded animate-pulse"
+                    />
                   ))}
                 </div>
               ) : (
-                <DiseaseDistributionChart data={diseaseData} height={320} />
+                <DiseaseDistributionChart
+                  data={diseaseData}
+                  height={320}
+                />
               )}
             </div>
           </section>
@@ -178,8 +215,8 @@ function TrendsContent() {
           <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-6">
             <Info className="w-6 h-6 text-blue-600 mt-0.5" />
             <p className="text-sm text-gray-700">
-              This view highlights disease trends over time to help identify
-              growth patterns, peak periods, and high-risk regions for
+              This view highlights disease trends over time to identify
+              growth patterns, peak periods, and high-risk zones for
               proactive planning.
             </p>
           </div>

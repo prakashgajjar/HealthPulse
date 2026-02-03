@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MedicalReport from '@/app/models/MedicalReport';
 import { getAuthFromRequest, isAdmin } from '@/lib/middleware';
+import User from '@/app/models/User';
 
 /**
  * GET /api/analysis/trends
@@ -13,7 +14,9 @@ export async function GET(request) {
 
     // Check authentication
     const auth = await getAuthFromRequest(request);
-    if (!auth) {
+
+    const user = User.findById(auth.userId)
+    if (!auth && !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -26,8 +29,8 @@ export async function GET(request) {
 
     // Filter based on role
     let areaFilter = {};
-    if (auth.role === 'user') {
-      areaFilter = { area: auth.area };
+    if (user.role === 'user') {
+      areaFilter = { area: user.area };
     } else if (area) {
       areaFilter = { area };
     }

@@ -10,6 +10,8 @@ import {
   calculateDailyTotal,
 } from '@/lib/analytics';
 
+import User from '@/app/models/User';
+
 /**
  * GET /api/analysis/overview
  * Get dashboard overview analytics
@@ -20,7 +22,8 @@ export async function GET(request) {
 
     // Check authentication
     const auth = await getAuthFromRequest(request);
-    if (!auth) {
+     const user = User.findById(auth.userId)
+    if (!auth && !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -31,8 +34,8 @@ export async function GET(request) {
 
     // Filter based on role
     let areaFilter = {};
-    if (auth.role === 'user') {
-      areaFilter = { area: auth.area };
+    if (user.role === 'user') {
+      areaFilter = { area: user.area };
     }
 
     // Get today's reports
@@ -86,7 +89,7 @@ export async function GET(request) {
 
     // Get high-risk areas (only for admin)
     let highRiskAreas = [];
-    if (auth.role === 'admin') {
+    if (user.role === 'admin') {
       highRiskAreas = detectHighRiskAreas(todayReports, last7DaysReports);
     }
 

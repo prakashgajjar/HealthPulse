@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MedicalReport from '@/app/models/MedicalReport';
 import { getAuthFromRequest, isAdmin } from '@/lib/middleware';
+import User from '@/app/models/User';
 
 /**
  * POST /api/reports
@@ -72,6 +73,7 @@ export async function GET(request) {
 
     // Check authentication
     const auth = await getAuthFromRequest(request);
+    const user = User.findById(auth.userId)
     if (!auth) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -101,8 +103,8 @@ export async function GET(request) {
     filter.reportDate = { $gte: pastDate };
 
     // For regular users, only get reports for their area
-    if (auth.role === 'user') {
-      filter.area = auth.area;
+    if (user.role === 'user') {
+      filter.area = user.area;
     }
 
     const reports = await MedicalReport.find(filter).sort({ reportDate: -1 });

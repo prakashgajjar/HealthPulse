@@ -32,6 +32,7 @@ function HealthInfoContent() {
 
         const data = await res.json();
         setReports(data.reports || []);
+        console.log('Health reports data:', data);
       } catch (err) {
         setError('Unable to load health information');
       } finally {
