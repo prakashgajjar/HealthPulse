@@ -366,7 +366,7 @@ npm install
 ### 2. Configure Database
 Create `.env.local`:
 ```env
-MONGODB_URI=mongodb://localhost:27017/health-analytics
+DATABASE_URL=mongodb://localhost:27017/health-analytics
 JWT_SECRET=your-secret-key
 NODE_ENV=development
 ```

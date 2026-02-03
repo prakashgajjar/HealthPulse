@@ -56,9 +56,9 @@ npm install
 Create a `.env.local` file in the root directory:
 
 ```env
-MONGODB_URI=mongodb://localhost:27017/health-analytics
+DATABASE_URL=mongodb://localhost:27017/health-analytics
 # Or MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/health-analytics
+# DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/health-analytics
 
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
 NODE_ENV=development
@@ -284,7 +284,7 @@ CMD ["npm", "start"]
 
 ### MongoDB Connection Error
 ```
-Solution: Ensure MongoDB is running and MONGODB_URI is correct
+Solution: Ensure MongoDB is running and DATABASE_URL is correct
 ```
 
 ### Seed Script Error

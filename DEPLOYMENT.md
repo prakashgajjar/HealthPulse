@@ -54,7 +54,7 @@ npm install -g vercel
 vercel
 
 # 3. Set environment variables in Vercel dashboard:
-#    - MONGODB_URI
+#    - DATABASE_URL
 #    - JWT_SECRET
 #    - NODE_ENV=production
 ```
@@ -66,7 +66,7 @@ vercel
 heroku create your-app-name
 
 # 2. Set environment variables
-heroku config:set MONGODB_URI=your_mongodb_uri
+heroku config:set DATABASE_URL=your_DATABASE_URL
 heroku config:set JWT_SECRET=your_jwt_secret
 
 # 3. Deploy
@@ -81,7 +81,7 @@ docker build -t health-analytics .
 
 # Run container
 docker run -p 3000:3000 \
-  -e MONGODB_URI=mongodb://... \
+  -e DATABASE_URL=mongodb://... \
   -e JWT_SECRET=your_secret \
   health-analytics
 ```
@@ -118,14 +118,14 @@ sudo yum install -y nginx
 
 ### Development
 ```env
-MONGODB_URI=mongodb://localhost:27017/health-analytics
+DATABASE_URL=mongodb://localhost:27017/health-analytics
 JWT_SECRET=dev-secret-key
 NODE_ENV=development
 ```
 
 ### Production
 ```env
-MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/health-analytics
+DATABASE_URL=mongodb+srv://user:password@cluster.mongodb.net/health-analytics
 JWT_SECRET=secure-production-secret-key-32-chars-min
 NODE_ENV=production
 ```

@@ -1,6 +1,6 @@
 {
   "env": {
-    "MONGODB_URI": "@mongodb_uri",
+    "DATABASE_URL": "@DATABASE_URL",
     "JWT_SECRET": "@jwt_secret"
   },
   "buildCommand": "npm run build",

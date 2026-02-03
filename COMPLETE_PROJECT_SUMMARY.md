@@ -448,7 +448,6 @@ project/
 2. **Configure Environment**
    ```bash
    # Create .env.local
-   MONGODB_URI=mongodb://localhost:27017/health-analytics
    JWT_SECRET=your-super-secret-key-change-in-production
    NODE_ENV=development
    ```
@@ -515,13 +514,13 @@ git push origin main
 
 # Vercel auto-deploys
 # Add environment variables in dashboard:
-# - MONGODB_URI
+# - DATABASE_URL
 # - JWT_SECRET
 ```
 
 ### Production Environment Variables
 ```env
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/db
+DATABASE_URL=mongodb+srv://user:pass@cluster.mongodb.net/db
 JWT_SECRET=super-secret-production-key-32-chars-min
 NODE_ENV=production
 NEXT_PUBLIC_API_URL=https://yourdomain.com
@@ -616,7 +615,7 @@ npm run dev -- -p 3001
 
 ### MongoDB connection error
 - Verify MongoDB is running
-- Check MONGODB_URI format
+- Check DATABASE_URL format
 - Ensure network access is enabled
 
 ### Build errors

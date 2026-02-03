@@ -8,7 +8,7 @@ npm install
 
 # 2. Configure
 # Create .env.local with:
-# MONGODB_URI=mongodb://localhost:27017/health-analytics
+# DATABASE_URL=mongodb://localhost:27017/health-analytics
 # JWT_SECRET=your-secret-key
 
 # 3. Start MongoDB
@@ -178,7 +178,7 @@ git push origin main
 ### Heroku
 ```bash
 heroku create app-name
-heroku config:set MONGODB_URI=your_uri
+heroku config:set DATABASE_URL=your_uri
 heroku config:set JWT_SECRET=your_secret
 git push heroku main
 ```

@@ -71,13 +71,13 @@ npm install
 4. Get connection string
 5. Update `.env.local`:
    ```
-   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/health-analytics
+   DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/health-analytics
    ```
 
 ### Step 3: Environment Setup
 Create `.env.local` with:
 ```env
-MONGODB_URI=mongodb://localhost:27017/health-analytics
+DATABASE_URL=mongodb://localhost:27017/health-analytics
 JWT_SECRET=change-this-to-a-secure-random-string-in-production
 NODE_ENV=development
 ```
@@ -407,7 +407,7 @@ vercel
 ```
 
 Set environment variables in Vercel dashboard:
-- `MONGODB_URI`: Your MongoDB Atlas connection string
+- `DATABASE_URL`: Your MongoDB Atlas connection string
 - `JWT_SECRET`: Strong random secret
 
 ### Docker Deployment
@@ -425,7 +425,7 @@ CMD ["npm", "start"]
 Build and run:
 ```bash
 docker build -t health-analytics .
-docker run -p 3000:3000 -e MONGODB_URI=... -e JWT_SECRET=... health-analytics
+docker run -p 3000:3000 -e DATABASE_URL=... -e JWT_SECRET=... health-analytics
 ```
 
 ---

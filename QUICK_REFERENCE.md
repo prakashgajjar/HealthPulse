@@ -266,14 +266,14 @@ vercel
 ### To Heroku
 ```bash
 heroku create app-name
-heroku config:set MONGODB_URI=...
+heroku config:set DATABASE_URL=...
 git push heroku main
 ```
 
 ### To Docker
 ```bash
 docker build -t health-app .
-docker run -p 3000:3000 -e MONGODB_URI=... health-app
+docker run -p 3000:3000 -e DATABASE_URL=... health-app
 ```
 
 ---
