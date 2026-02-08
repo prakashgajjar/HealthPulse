@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -12,8 +12,29 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-} from 'recharts';
-import axios from 'axios';
+} from "recharts";
+import { LineChart as LineChartIcon } from "lucide-react";
+
+import axios from "axios";
+import { FiTrendingUp, FiCheckCircle, FiTarget } from "react-icons/fi";
+import {
+  Brain,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  BarChart3,
+  RefreshCcw,
+} from "lucide-react";
+
+import {
+  Target,
+  Megaphone,
+  Hospital,
+  Globe,
+  CalendarDays,
+  Play,
+  Loader2,
+} from "lucide-react";
 
 export default function ForecastSimulator({ area, disease }) {
   const [baseline, setBaseline] = useState(null);
@@ -39,13 +60,13 @@ export default function ForecastSimulator({ area, disease }) {
       try {
         const response = await axios.get(
           `/api/ai/forecast?area=${encodeURIComponent(area)}&disease=${encodeURIComponent(
-            disease
-          )}&days=${forecastDays}`
+            disease,
+          )}&days=${forecastDays}`,
         );
         setBaseline(response.data);
         setSimulation(null); // Reset simulation
       } catch (error) {
-        console.error('Error fetching forecast:', error);
+        console.error("Error fetching forecast:", error);
       } finally {
         setLoading(false);
       }
@@ -60,7 +81,7 @@ export default function ForecastSimulator({ area, disease }) {
 
     setSimulating(true);
     try {
-      const response = await axios.post('/api/ai/simulate', {
+      const response = await axios.post("/api/ai/simulate", {
         area,
         disease,
         interventions,
@@ -68,8 +89,8 @@ export default function ForecastSimulator({ area, disease }) {
       });
       setSimulation(response.data);
     } catch (error) {
-      console.error('Error running simulation:', error);
-      alert('Failed to run simulation');
+      console.error("Error running simulation:", error);
+      alert("Failed to run simulation");
     } finally {
       setSimulating(false);
     }
@@ -77,7 +98,7 @@ export default function ForecastSimulator({ area, disease }) {
 
   // Prepare chart data
   const getChartData = () => {
-    if (!baseline || baseline.status !== 'success') return [];
+    if (!baseline || baseline.status !== "success") return [];
 
     const data = baseline.baselineForecast.map((cases, idx) => ({
       day: idx + 1,
@@ -99,10 +120,12 @@ export default function ForecastSimulator({ area, disease }) {
     );
   }
 
-  if (baseline?.status !== 'success') {
+  if (baseline?.status !== "success") {
     return (
       <div className="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-400">
-        <p className="text-gray-700 font-medium">📊 {baseline?.message || 'Unable to generate forecast'}</p>
+        <p className="text-gray-700 font-medium">
+          📊 {baseline?.message || "Unable to generate forecast"}
+        </p>
         <p className="text-sm text-gray-600 mt-2">
           Try with different disease or area, or wait for more historical data.
         </p>
@@ -120,23 +143,33 @@ export default function ForecastSimulator({ area, disease }) {
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white rounded p-4 shadow-sm">
-            <p className="text-xs font-semibold text-gray-600 uppercase">Forecast Confidence</p>
-            <p className="text-2xl font-bold text-blue-600 mt-1 capitalize">{baseline.confidence}</p>
+            <p className="text-xs font-semibold text-gray-600 uppercase">
+              Forecast Confidence
+            </p>
+            <p className="text-2xl font-bold text-blue-600 mt-1 capitalize">
+              {baseline.confidence}
+            </p>
           </div>
           <div className="bg-white rounded p-4 shadow-sm">
-            <p className="text-xs font-semibold text-gray-600 uppercase">Current Trend</p>
+            <p className="text-xs font-semibold text-gray-600 uppercase">
+              Current Trend
+            </p>
             <p className="text-2xl font-bold text-indigo-600 mt-1 capitalize">
               {baseline.currentTrend}
             </p>
           </div>
           <div className="bg-white rounded p-4 shadow-sm">
-            <p className="text-xs font-semibold text-gray-600 uppercase">Avg Daily Cases</p>
+            <p className="text-xs font-semibold text-gray-600 uppercase">
+              Avg Daily Cases
+            </p>
             <p className="text-2xl font-bold text-purple-600 mt-1">
               {baseline.historicalAverage.toFixed(0)}
             </p>
           </div>
           <div className="bg-white rounded p-4 shadow-sm">
-            <p className="text-xs font-semibold text-gray-600 uppercase">Baseline Total</p>
+            <p className="text-xs font-semibold text-gray-600 uppercase">
+              Baseline Total
+            </p>
             <p className="text-2xl font-bold text-red-600 mt-1">
               {baseline.baselineForecast.reduce((a, b) => a + b, 0)}
             </p>
@@ -146,7 +179,10 @@ export default function ForecastSimulator({ area, disease }) {
 
       {/* Intervention Controls */}
       <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-        <h3 className="text-lg font-bold text-gray-800 mb-6">🎯 Intervention Controls</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <Target className="w-5 h-5 text-gray-700" />
+          Intervention Controls
+        </h3>
 
         <div className="space-y-6">
           {/* Awareness Level Slider */}
@@ -159,10 +195,10 @@ export default function ForecastSimulator({ area, disease }) {
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-bold ${
                     interventions.awarenessLevel < 33
-                      ? 'bg-red-100 text-red-800'
+                      ? "bg-red-100 text-red-800"
                       : interventions.awarenessLevel < 66
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-green-100 text-green-800'
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-green-100 text-green-800"
                   }`}
                 >
                   {interventions.awarenessLevel}%
@@ -174,8 +210,8 @@ export default function ForecastSimulator({ area, disease }) {
               min="0"
               max="100"
               value={interventions.awarenessLevel}
-              onChange={e =>
-                setInterventions(prev => ({
+              onChange={(e) =>
+                setInterventions((prev) => ({
                   ...prev,
                   awarenessLevel: parseInt(e.target.value),
                 }))
@@ -193,24 +229,32 @@ export default function ForecastSimulator({ area, disease }) {
             <div className="flex items-center gap-3">
               <span className="text-2xl">🏥</span>
               <div>
-                <p className="font-semibold text-gray-800">Medical Intervention</p>
-                <p className="text-sm text-gray-600">Health camps, testing, treatment</p>
+                <p className="font-semibold text-gray-800">
+                  Medical Intervention
+                </p>
+                <p className="text-sm text-gray-600">
+                  Health camps, testing, treatment
+                </p>
               </div>
             </div>
             <button
               onClick={() =>
-                setInterventions(prev => ({
+                setInterventions((prev) => ({
                   ...prev,
                   medicalIntervention: !prev.medicalIntervention,
                 }))
               }
               className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                interventions.medicalIntervention ? 'bg-green-500' : 'bg-gray-300'
+                interventions.medicalIntervention
+                  ? "bg-green-500"
+                  : "bg-gray-300"
               }`}
             >
               <span
                 className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                  interventions.medicalIntervention ? 'translate-x-7' : 'translate-x-1'
+                  interventions.medicalIntervention
+                    ? "translate-x-7"
+                    : "translate-x-1"
                 }`}
               />
             </button>
@@ -221,24 +265,32 @@ export default function ForecastSimulator({ area, disease }) {
             <div className="flex items-center gap-3">
               <span className="text-2xl">🌍</span>
               <div>
-                <p className="font-semibold text-gray-800">Environmental Control</p>
-                <p className="text-sm text-gray-600">Mosquito spraying, sanitation, water safety</p>
+                <p className="font-semibold text-gray-800">
+                  Environmental Control
+                </p>
+                <p className="text-sm text-gray-600">
+                  Mosquito spraying, sanitation, water safety
+                </p>
               </div>
             </div>
             <button
               onClick={() =>
-                setInterventions(prev => ({
+                setInterventions((prev) => ({
                   ...prev,
                   environmentalControl: !prev.environmentalControl,
                 }))
               }
               className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                interventions.environmentalControl ? 'bg-green-500' : 'bg-gray-300'
+                interventions.environmentalControl
+                  ? "bg-green-500"
+                  : "bg-gray-300"
               }`}
             >
               <span
                 className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                  interventions.environmentalControl ? 'translate-x-7' : 'translate-x-1'
+                  interventions.environmentalControl
+                    ? "translate-x-7"
+                    : "translate-x-1"
                 }`}
               />
             </button>
@@ -250,14 +302,14 @@ export default function ForecastSimulator({ area, disease }) {
               📅 Forecast Period
             </label>
             <div className="flex gap-2">
-              {[7, 14, 21, 30].map(days => (
+              {[7, 14, 21, 30].map((days) => (
                 <button
                   key={days}
                   onClick={() => setForecastDays(days)}
                   className={`px-4 py-2 rounded-lg font-medium transition-all ${
                     forecastDays === days
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? "bg-blue-600 text-white shadow-lg"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                 >
                   {days} days
@@ -274,7 +326,11 @@ export default function ForecastSimulator({ area, disease }) {
           >
             {simulating ? (
               <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <svg
+                  className="animate-spin h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -292,7 +348,7 @@ export default function ForecastSimulator({ area, disease }) {
                 Running Simulation...
               </span>
             ) : (
-              '▶️ Run Simulation'
+              "▶️ Run Simulation"
             )}
           </button>
         </div>
@@ -300,35 +356,56 @@ export default function ForecastSimulator({ area, disease }) {
 
       {/* Forecast Comparison Chart */}
       <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">
-          📈 Forecast Comparison ({forecastDays} Days)
+        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <LineChartIcon className="w-5 h-5 text-gray-700" />
+          Forecast Comparison ({forecastDays || 0} Days)
         </h3>
-        {chartData.length > 0 && (
+
+        {Array.isArray(chartData) && chartData.length > 0 && (
           <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+            <LineChart
+              data={chartData}
+              margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+
               <XAxis
                 dataKey="day"
-                label={{ value: 'Days', position: 'insideBottomRight', offset: -5 }}
-              />
-              <YAxis label={{ value: 'Cases', angle: -90, position: 'insideLeft' }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
+                label={{
+                  value: "Days",
+                  position: "insideBottomRight",
+                  offset: -5,
                 }}
               />
+
+              <YAxis
+                label={{
+                  value: "Cases",
+                  angle: -90,
+                  position: "insideLeft",
+                }}
+              />
+
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#fff",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                }}
+              />
+
               <Legend />
+
               <Line
                 type="monotone"
                 dataKey="baseline"
                 stroke="#ef4444"
                 strokeWidth={3}
                 name="Without Intervention (Baseline)"
-                dot={{ fill: '#ef4444', r: 4 }}
+                dot={{ fill: "#ef4444", r: 4 }}
                 activeDot={{ r: 6 }}
               />
+
               {simulation && (
                 <Line
                   type="monotone"
@@ -336,7 +413,7 @@ export default function ForecastSimulator({ area, disease }) {
                   stroke="#22c55e"
                   strokeWidth={3}
                   name="With Intervention (Simulated)"
-                  dot={{ fill: '#22c55e', r: 4 }}
+                  dot={{ fill: "#22c55e", r: 4 }}
                   activeDot={{ r: 6 }}
                 />
               )}
@@ -346,63 +423,101 @@ export default function ForecastSimulator({ area, disease }) {
       </div>
 
       {/* Impact Summary */}
-      {simulation && simulation.status === 'success' && (
+      {simulation && simulation.status === "success" && (
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 border-2 border-green-300">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">🎯 Impact Analysis</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <FiTarget className="text-gray-700" />
+            Impact Analysis
+          </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-green-500">
-              <p className="text-xs font-semibold text-gray-600 uppercase">Cases Prevented</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">{casesPrevented}</p>
+              <p className="text-xs font-semibold text-gray-600 uppercase">
+                Cases Prevented
+              </p>
+              <p className="text-3xl font-bold text-green-600 mt-2">
+                {casesPrevented}
+              </p>
               <p className="text-sm text-gray-600 mt-1">
                 Out of {simulation.baseline.total} projected
               </p>
             </div>
 
             <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-blue-500">
-              <p className="text-xs font-semibold text-gray-600 uppercase">Case Reduction</p>
-              <p className="text-3xl font-bold text-blue-600 mt-2">{impactReduction}%</p>
+              <p className="text-xs font-semibold text-gray-600 uppercase">
+                Case Reduction
+              </p>
+              <p className="text-3xl font-bold text-blue-600 mt-2">
+                {impactReduction}%
+              </p>
               <p className="text-sm text-gray-600 mt-1">Compared to baseline</p>
             </div>
 
             <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-500">
-              <p className="text-xs font-semibold text-gray-600 uppercase">Intervention Strength</p>
+              <p className="text-xs font-semibold text-gray-600 uppercase">
+                Intervention Strength
+              </p>
               <p className="text-2xl font-bold text-purple-600 mt-2">
                 {simulation.impact.interventionStrength}
               </p>
-              <p className="text-sm text-gray-600 mt-1">Combined intervention effect</p>
+              <p className="text-sm text-gray-600 mt-1">
+                Combined intervention effect
+              </p>
             </div>
           </div>
 
           {/* Detailed Comparison */}
+
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white rounded-lg p-4">
-              <p className="font-semibold text-red-600 mb-2">📊 Baseline Forecast</p>
+              <p className="font-semibold text-red-600 mb-2 flex items-center gap-2">
+                <FiTrendingUp className="text-red-600" />
+                Baseline Forecast
+              </p>
+
               <div className="space-y-1">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Total Cases (Projected):</span>
-                  <span className="font-bold text-gray-800">{simulation.baseline.total}</span>
+                  <span className="text-gray-600">
+                    Total Cases (Projected):
+                  </span>
+                  <span className="font-bold text-gray-800">
+                    {(simulation?.baseline?.total ?? 0).toLocaleString()}
+                  </span>
                 </div>
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Daily Average:</span>
                   <span className="font-bold text-gray-800">
-                    {Math.round(simulation.baseline.total / forecastDays)}
+                    {Math.round(
+                      (simulation?.baseline?.total ?? 0) / (forecastDays || 1),
+                    ).toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-lg p-4">
-              <p className="font-semibold text-green-600 mb-2">✅ With Interventions</p>
+              <p className="font-semibold text-green-600 mb-2 flex items-center gap-2">
+                <FiCheckCircle className="text-green-600" />
+                With Interventions
+              </p>
+
               <div className="space-y-1">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Total Cases (Projected):</span>
-                  <span className="font-bold text-gray-800">{simulation.scenario.total}</span>
+                  <span className="text-gray-600">
+                    Total Cases (Projected):
+                  </span>
+                  <span className="font-bold text-gray-800">
+                    {(simulation?.scenario?.total ?? 0).toLocaleString()}
+                  </span>
                 </div>
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Daily Average:</span>
                   <span className="font-bold text-gray-800">
-                    {Math.round(simulation.scenario.total / forecastDays)}
+                    {Math.round(
+                      (simulation?.scenario?.total ?? 0) / (forecastDays || 1),
+                    ).toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -410,58 +525,106 @@ export default function ForecastSimulator({ area, disease }) {
           </div>
 
           {/* Recommendations */}
-          <div className="mt-6 p-4 bg-white rounded-lg border-l-4 border-indigo-500">
-            <p className="font-semibold text-gray-800 mb-2">💡 Recommendations</p>
-            <ul className="space-y-2">
-              {impactReduction > 50 && (
-                <li className="text-sm text-gray-700 flex items-start">
-                  <span className="mr-2">✅</span>
-                  <span>
-                    Strong intervention strategy - {impactReduction}% case reduction is significant
+          <div className="mt-8 bg-gradient-to-br from-white to-indigo-50 rounded-xl border border-indigo-200 shadow-sm">
+            <div className="border-l-4 border-indigo-500 p-5 rounded-l-xl">
+              {/* Header */}
+              <div className="flex items-center gap-2 mb-4">
+                <Brain className="text-indigo-600" size={20} />
+                <h4 className="font-semibold text-gray-800">
+                  AI-Driven Recommendations
+                </h4>
+              </div>
+
+              <ul className="space-y-3 text-sm">
+                {/* High Impact */}
+                {impactReduction > 50 && (
+                  <li className="flex items-start gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
+                    <CheckCircle className="text-green-600 mt-0.5" size={18} />
+                    <span className="text-gray-800">
+                      <strong>Strong intervention strategy.</strong>
+                      Estimated case reduction of{" "}
+                      <strong>{impactReduction}%</strong> indicates high
+                      effectiveness.
+                    </span>
+                  </li>
+                )}
+
+                {/* Medium Impact */}
+                {impactReduction > 25 && impactReduction <= 50 && (
+                  <li className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+                    <AlertTriangle
+                      className="text-yellow-600 mt-0.5"
+                      size={18}
+                    />
+                    <span className="text-gray-800">
+                      <strong>Moderate intervention impact.</strong>
+                      Consider strengthening awareness campaigns or medical
+                      response for improved outcomes.
+                    </span>
+                  </li>
+                )}
+
+                {/* Low Impact */}
+                {impactReduction <= 25 && (
+                  <li className="flex items-start gap-3 p-3 rounded-lg bg-red-50 border border-red-200">
+                    <XCircle className="text-red-600 mt-0.5" size={18} />
+                    <span className="text-gray-800">
+                      <strong>Low intervention effectiveness.</strong>
+                      Increase preventive measures across all intervention
+                      areas.
+                    </span>
+                  </li>
+                )}
+
+                {/* General Guidance */}
+                <li className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <BarChart3 className="text-gray-600 mt-0.5" size={18} />
+                  <span className="text-gray-800">
+                    Continuously monitor actual reported cases against AI
+                    forecasts.
                   </span>
                 </li>
-              )}
-              {impactReduction > 25 && impactReduction <= 50 && (
-                <li className="text-sm text-gray-700 flex items-start">
-                  <span className="mr-2">⚠️</span>
-                  <span>
-                    Moderate interventions - Consider adding more measures for better impact
+
+                <li className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <RefreshCcw className="text-gray-600 mt-0.5" size={18} />
+                  <span className="text-gray-800">
+                    Recalibrate intervention strategies if real-world trends
+                    deviate from predictions.
                   </span>
                 </li>
-              )}
-              {impactReduction <= 25 && (
-                <li className="text-sm text-gray-700 flex items-start">
-                  <span className="mr-2">❌</span>
-                  <span>Limited interventions - Increase awareness and implement all measures</span>
-                </li>
-              )}
-              <li className="text-sm text-gray-700 flex items-start">
-                <span className="mr-2">📋</span>
-                <span>Monitor actual cases against this forecast daily</span>
-              </li>
-              <li className="text-sm text-gray-700 flex items-start">
-                <span className="mr-2">🔄</span>
-                <span>Adjust interventions based on deviations from prediction</span>
-              </li>
-            </ul>
+              </ul>
+
+              {/* Disclaimer */}
+              <p className="text-xs text-gray-500 mt-4">
+                Recommendations are AI-assisted insights for preventive planning
+                and do not replace medical or policy decisions.
+              </p>
+            </div>
           </div>
         </div>
       )}
 
       {/* Baseline Recommendations */}
-      {baseline.recommendations && baseline.recommendations.length > 0 && !simulation && (
-        <div className="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-500">
-          <h4 className="font-semibold text-blue-900 mb-3">📌 Baseline Insights</h4>
-          <ul className="space-y-2">
-            {baseline.recommendations.map((rec, idx) => (
-              <li key={idx} className="text-sm text-blue-800 flex items-start">
-                <span className="mr-2">•</span>
-                <span>{rec}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {baseline.recommendations &&
+        baseline.recommendations.length > 0 &&
+        !simulation && (
+          <div className="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-500">
+            <h4 className="font-semibold text-blue-900 mb-3">
+              📌 Baseline Insights
+            </h4>
+            <ul className="space-y-2">
+              {baseline.recommendations.map((rec, idx) => (
+                <li
+                  key={idx}
+                  className="text-sm text-blue-800 flex items-start"
+                >
+                  <span className="mr-2">•</span>
+                  <span>{rec}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Sidebar } from "@/app/components/Sidebar";
 import ForecastSimulator from "@/app/components/ForecastSimulator";
 import { AdminRoute } from "@/app/components/ProtectedRoute";
 import { TrendingUp, Activity, Zap } from "lucide-react";
+import { BarChart3, Target } from "lucide-react";
 
 export default function ForecastPage() {
   const [area, setArea] = useState("");
@@ -131,52 +132,53 @@ export default function ForecastPage() {
 
             {/* Feature Cards */}
             {!area || !disease ? (
-              <motion.div
-                className="grid md:grid-cols-3 gap-4 mb-8"
-                variants={containerVariants}
-              >
-                <motion.div
-                  className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-lg border border-blue-200 hover:shadow-md transition"
-                  variants={itemVariants}
-                  whileHover={{ y: -2 }}
-                >
-                  <div className="text-3xl mb-2">📊</div>
-                  <h3 className="font-semibold text-gray-800 mb-1">
-                    Baseline Forecast
-                  </h3>
-                  <p className="text-sm text-gray-700">
-                    AI predicts cases for 7-30 days
-                  </p>
-                </motion.div>
+             <motion.div
+  className="grid md:grid-cols-3 gap-4 mb-8"
+  variants={containerVariants}
+>
+  <motion.div
+    className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-lg border border-blue-200 hover:shadow-md transition"
+    variants={itemVariants}
+    whileHover={{ y: -2 }}
+  >
+    <BarChart3 className="w-8 h-8 text-blue-600 mb-2" />
+    <h3 className="font-semibold text-gray-800 mb-1">
+      Baseline Forecast
+    </h3>
+    <p className="text-sm text-gray-700">
+      AI predicts cases for 7–30 days
+    </p>
+  </motion.div>
 
-                <motion.div
-                  className="bg-gradient-to-br from-green-50 to-emerald-100 p-5 rounded-lg border border-green-200 hover:shadow-md transition"
-                  variants={itemVariants}
-                  whileHover={{ y: -2 }}
-                >
-                  <div className="text-3xl mb-2">🎯</div>
-                  <h3 className="font-semibold text-gray-800 mb-1">
-                    Intervention Sim
-                  </h3>
-                  <p className="text-sm text-gray-700">
-                    Simulate preventive actions
-                  </p>
-                </motion.div>
+  <motion.div
+    className="bg-gradient-to-br from-green-50 to-emerald-100 p-5 rounded-lg border border-green-200 hover:shadow-md transition"
+    variants={itemVariants}
+    whileHover={{ y: -2 }}
+  >
+    <Target className="w-8 h-8 text-green-600 mb-2" />
+    <h3 className="font-semibold text-gray-800 mb-1">
+      Intervention Sim
+    </h3>
+    <p className="text-sm text-gray-700">
+      Simulate preventive actions
+    </p>
+  </motion.div>
 
-                <motion.div
-                  className="bg-gradient-to-br from-purple-50 to-indigo-100 p-5 rounded-lg border border-indigo-200 hover:shadow-md transition"
-                  variants={itemVariants}
-                  whileHover={{ y: -2 }}
-                >
-                  <div className="text-3xl mb-2">📈</div>
-                  <h3 className="font-semibold text-gray-800 mb-1">
-                    Impact Analysis
-                  </h3>
-                  <p className="text-sm text-gray-700">
-                    See cases prevented & reduction %
-                  </p>
-                </motion.div>
-              </motion.div>
+  <motion.div
+    className="bg-gradient-to-br from-purple-50 to-indigo-100 p-5 rounded-lg border border-indigo-200 hover:shadow-md transition"
+    variants={itemVariants}
+    whileHover={{ y: -2 }}
+  >
+    <TrendingUp className="w-8 h-8 text-indigo-600 mb-2" />
+    <h3 className="font-semibold text-gray-800 mb-1">
+      Impact Analysis
+    </h3>
+    <p className="text-sm text-gray-700">
+      See cases prevented & reduction %
+    </p>
+  </motion.div>
+</motion.div>
+
             ) : null}
 
             {/* Simulator */}
