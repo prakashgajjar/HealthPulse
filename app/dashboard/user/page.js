@@ -5,6 +5,7 @@ import { Sidebar } from '@/app/components/Sidebar';
 import { StatCard, AlertCard } from '@/app/components/Cards';
 import { ProtectedRoute } from '@/app/components/ProtectedRoute';
 import { useAuth } from '@/app/context/AuthContext';
+import RiskScoreMeter from '@/app/components/RiskScoreMeter';
 
 import {
   Activity,
@@ -118,6 +119,13 @@ function UserDashboardContent() {
               <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
               <p className="text-sm text-red-700">{error}</p>
             </div>
+          )}
+
+          {/* ================= AI RISK ASSESSMENT ================= */}
+          {user?.area && (
+            <section>
+              <RiskScoreMeter area={user.area} />
+            </section>
           )}
 
           {/* ================= STATS ================= */}

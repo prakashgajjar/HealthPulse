@@ -22,6 +22,7 @@ function AlertsContent() {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -91,6 +92,47 @@ function AlertsContent() {
       setError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  /* ===================== GENERATE ALERT WITH AI ===================== */
+  const handleGenerateWithAI = async () => {
+    if (!disease || !area) {
+      setError('Please enter disease and area first');
+      return;
+    }
+
+    setError(null);
+    setGeneratingAI(true);
+
+    try {
+      const res = await fetch('/api/ai/generate-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          disease,
+          area,
+          riskLevel,
+          caseCount: null,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to generate alert');
+      }
+
+      const data = await res.json();
+      const alertData = data.alert;
+
+      // Fill in the form with AI-generated content
+      setTitle(alertData.title);
+      setMessage(alertData.message);
+      setSuccess('AI-generated alert loaded. Please review and edit as needed.');
+    } catch (err) {
+      setError('Failed to generate alert: ' + err.message);
+    } finally {
+      setGeneratingAI(false);
     }
   };
 
@@ -199,13 +241,32 @@ function AlertsContent() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Alert Message
                 </label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  rows={4}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
-                  placeholder="Write a clear and actionable alert message"
-                />
+                <div className="flex gap-2 mb-2">
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    rows={4}
+                    className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Write a clear and actionable alert message"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleGenerateWithAI}
+                  disabled={generatingAI || !disease || !area}
+                  className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg text-sm transition"
+                >
+                  {generatingAI ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      ✨ Generate with AI
+                    </>
+                  )}
+                </button>
               </div>
 
               <button

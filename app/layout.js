@@ -1,6 +1,7 @@
 import './globals.css';
 import { AuthProvider } from '@/app/context/AuthContext';
 import { Navbar } from '@/app/components/Navbar';
+import ChatBot from '@/app/components/ChatBot';
 
 export const metadata = {
   title: 'Health Analytics System',
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <Navbar />
           {children}
+          <ChatBot />
         </AuthProvider>
       </body>
     </html>

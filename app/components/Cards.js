@@ -8,6 +8,7 @@ import {
   Biohazard,
   ShieldAlert,
 } from 'lucide-react';
+import ExplainabilityPanel from './ExplainabilityPanel';
 
 /* ===================== STAT CARD ===================== */
 export function StatCard({
@@ -64,7 +65,7 @@ export function AlertCard({ alert, onDelete, onToggle }) {
   const riskStyles = {
     low: 'border-green-300 bg-green-50',
     medium: 'border-yellow-300 bg-yellow-50',
-    high: 'border-red-300 bg-red-50',
+    high: 'border-red-300 bg-red-100',
   };
 
   const badgeStyles = {
@@ -73,14 +74,16 @@ export function AlertCard({ alert, onDelete, onToggle }) {
     high: 'text-red-700 bg-red-100',
   };
 
+  const sourceIcon = alert.source === 'AI' ? '🤖' : '👤';
+
   return (
     <div
       className={`rounded-xl border p-5 ${riskStyles[alert.riskLevel]}`}
     >
       <div className="flex justify-between gap-4">
-        <div className="space-y-3">
+        <div className="space-y-3 flex-1">
           {/* Header */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <ShieldAlert className="w-5 h-5 text-gray-700" />
             <h4 className="font-semibold text-gray-900">
               {alert.title}
@@ -90,12 +93,37 @@ export function AlertCard({ alert, onDelete, onToggle }) {
             >
               {alert.riskLevel.toUpperCase()}
             </span>
+            {alert.source === 'AI' && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
+                🤖 AI Generated
+              </span>
+            )}
+            {alert.type && alert.type !== 'general' && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-medium">
+                {alert.type.toUpperCase()}
+              </span>
+            )}
           </div>
 
           {/* Message */}
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-gray-700 whitespace-pre-wrap">
             {alert.message}
           </p>
+
+          {/* Explanations for AI alerts */}
+          {alert.explanations && alert.explanations.length > 0 && (
+            <div className="mt-2 p-2 bg-white rounded border border-gray-300">
+              <p className="text-xs font-medium text-gray-700 mb-1">Why this alert:</p>
+              <ul className="text-xs text-gray-600 space-y-0.5">
+                {alert.explanations.map((exp, idx) => (
+                  <li key={idx} className="flex items-start">
+                    <span className="mr-1">•</span>
+                    <span>{exp}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Meta */}
           <div className="flex flex-wrap gap-4 text-xs text-gray-600">
@@ -112,6 +140,13 @@ export function AlertCard({ alert, onDelete, onToggle }) {
               {new Date(alert.createdAt).toLocaleDateString()}
             </span>
           </div>
+
+          {/* Explainability */}
+          {alert._id && (
+            <div className="mt-2">
+              <ExplainabilityPanel itemId={alert._id} itemType="alert" />
+            </div>
+          )}
         </div>
 
         {/* Actions */}

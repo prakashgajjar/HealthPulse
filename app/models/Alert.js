@@ -27,10 +27,37 @@ const alertSchema = new mongoose.Schema(
       enum: ['low', 'medium', 'high'],
       required: true,
     },
+    riskScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
     isActive: {
       type: Boolean,
       default: true,
     },
+    // AI-related fields for anomaly detection
+    source: {
+      type: String,
+      enum: ['manual', 'AI'],
+      default: 'manual',
+    },
+    type: {
+      type: String,
+      enum: ['general', 'anomaly', 'trend'],
+      default: 'general',
+    },
+    spikePercentage: {
+      type: Number,
+      description: 'For anomaly alerts - percentage increase in cases',
+    },
+    // Explainability data
+    explanations: [
+      {
+        type: String,
+        description: 'Reasons why this alert was generated',
+      },
+    ],
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

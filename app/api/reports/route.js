@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MedicalReport from '@/app/models/MedicalReport';
+import Alert from '@/app/models/Alert';
 import { getAuthFromRequest, isAdmin } from '@/lib/middleware';
 import User from '@/app/models/User';
+import { checkAnomalyInReport, generateAnomalyAlert } from '@/lib/anomalyService';
+import { calculateAreaRiskScore } from '@/lib/riskService';
 
 /**
  * POST /api/reports
  * Create new medical report (Admin only)
+ * Triggers AI anomaly detection and risk score calculation
  */
 export async function POST(request) {
   try {
@@ -47,10 +51,49 @@ export async function POST(request) {
 
     await report.save();
 
+    // AI FEATURE 1 & 2: Trigger anomaly detection and risk score calculation
+    let anomalyDetected = false;
+    let alertCreated = null;
+    let riskScoreData = null;
+
+    try {
+      // Check for anomaly
+      const anomalyCheck = await checkAnomalyInReport(disease, area, caseCount);
+
+      if (anomalyCheck.hasAnomaly) {
+        anomalyDetected = true;
+        const alertData = generateAnomalyAlert(anomalyCheck);
+
+        if (alertData) {
+          const alert = new Alert({
+            ...alertData,
+            createdBy: auth.userId,
+          });
+          await alert.save();
+          alertCreated = alert._id;
+        }
+      }
+
+      // Calculate risk score for the area
+      const riskScores = await calculateAreaRiskScore(area, disease);
+      if (riskScores && riskScores.length > 0) {
+        riskScoreData = riskScores[0];
+      }
+    } catch (aiError) {
+      // Log AI errors but don't fail the request
+      console.error('AI processing error:', aiError);
+    }
+
     return NextResponse.json(
       {
         message: 'Report created successfully',
         report,
+        ai: {
+          anomalyDetected,
+          alertCreated,
+          riskScoreCalculated: !!riskScoreData,
+          riskScore: riskScoreData?.riskScore,
+        },
       },
       { status: 201 }
     );

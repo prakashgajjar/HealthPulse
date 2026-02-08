@@ -12,6 +12,7 @@ import {
   MapPin,
   Mail,
   Shield,
+  Zap,
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -23,6 +24,7 @@ export function Sidebar() {
     { href: '/dashboard/admin/reports', label: 'Medical Reports', icon: FileText },
     { href: '/dashboard/admin/trends', label: 'Trends Analysis', icon: TrendingUp },
     { href: '/dashboard/admin/alerts', label: 'Alerts Management', icon: Bell },
+    { href: '/dashboard/admin/forecast', label: 'Forecast & Simulator', icon: Zap },
   ];
 
   const userLinks = [

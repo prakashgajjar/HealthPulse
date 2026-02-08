@@ -5,6 +5,7 @@ import { Sidebar } from '@/app/components/Sidebar';
 import { StatCard, HighRiskAreaCard } from '@/app/components/Cards';
 import { AdminRoute } from '@/app/components/ProtectedRoute';
 import { useAuth } from '@/app/context/AuthContext';
+import RiskScoreMeter from '@/app/components/RiskScoreMeter';
 import {
   LayoutDashboard,
   AlertTriangle,
