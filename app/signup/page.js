@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/context/AuthContext';
@@ -8,7 +8,16 @@ import { User, Mail, Lock, MapPin, Activity } from 'lucide-react';
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signup } = useAuth();
+  const { signup, isAuthenticated, user } = useAuth();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      router.push(
+        user.role === 'admin' ? '/dashboard/admin' : '/dashboard/user',
+      );
+    }
+  }, [isAuthenticated, user, router]);
 
   const [formData, setFormData] = useState({
     name: '',
