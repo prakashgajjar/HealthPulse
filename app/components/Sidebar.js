@@ -13,6 +13,7 @@ import {
   Mail,
   Shield,
   Zap,
+  AlertCircle,
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -23,6 +24,7 @@ export function Sidebar() {
     { href: '/dashboard/admin', label: 'Overview', icon: LayoutDashboard },
     { href: '/dashboard/admin/reports', label: 'Medical Reports', icon: FileText },
     { href: '/dashboard/admin/trends', label: 'Trends Analysis', icon: TrendingUp },
+    { href: '/dashboard/admin/risk-score', label: 'Risk Score Meter', icon: AlertCircle },
     { href: '/dashboard/admin/alerts', label: 'Alerts Management', icon: Bell },
     { href: '/dashboard/admin/forecast', label: 'Forecast & Simulator', icon: Zap },
   ];
