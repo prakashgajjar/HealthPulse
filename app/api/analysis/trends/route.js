@@ -33,12 +33,19 @@ export async function GET(request) {
     const days = parseInt(searchParams.get('days') || '30');
     const area = searchParams.get('area');
 
-    // Filter based on role
+    // Filter based on role and area parameter
     let areaFilter = {};
+    
     if (user.role === 'user') {
+      // Users can only see their own area's data
       areaFilter = { area: user.area };
-    } else if (area) {
-      areaFilter = { area };
+    } else if (user.role === 'admin') {
+      // Admins can optionally filter by specific area
+      // Special keywords like 'ALL', 'BY_AREA', 'OVERALL' mean no area filter (show all areas)
+      if (area && !['ALL', 'BY_AREA', 'OVERALL', 'all', 'by_area', 'overall'].includes(area)) {
+        areaFilter = { area };
+      }
+      // Otherwise areaFilter remains empty to get all areas
     }
 
     // Get reports for specified days
@@ -46,10 +53,38 @@ export async function GET(request) {
     pastDate.setDate(pastDate.getDate() - days);
     pastDate.setHours(0, 0, 0, 0);
 
+    console.log('Trends query params:', { 
+      days, 
+      area: area || 'all',
+      userRole: user.role,
+      userArea: user.area,
+      pastDate,
+      areaFilter 
+    });
+
+    // Debug: Check what's actually in the database
+    const allReportsCount = await MedicalReport.countDocuments();
+    const reportsByArea = await MedicalReport.aggregate([
+      { $group: { _id: '$area', count: { $sum: 1 } } }
+    ]);
+
+    console.log('Database summary:', { allReportsCount, reportsByArea });
+
     const reports = await MedicalReport.find({
       ...areaFilter,
       reportDate: { $gte: pastDate },
     }).sort({ reportDate: 1 });
+
+    console.log(`Found ${reports.length} reports for trends analysis with filter:`, areaFilter);
+
+    if (reports.length === 0) {
+      console.warn('No reports found. Checking database...');
+      const allReports = await MedicalReport.countDocuments();
+      const recentReports = await MedicalReport.countDocuments({ 
+        reportDate: { $gte: pastDate } 
+      });
+      console.log(`Total reports in DB: ${allReports}, Recent: ${recentReports}`);
+    }
 
     // Group reports by date
     const dailyData = {};
@@ -79,6 +114,15 @@ export async function GET(request) {
       }
       diseaseData[report.disease][dateStr] += report.caseCount;
     });
+
+    console.log('Trend analysis data prepared:', { 
+      reportCount: reports.length,
+      trendDataPoints: trendData.length, 
+      diseaseCount: Object.keys(diseaseData).length,
+      trendData: trendData.slice(0, 5),
+      diseasePreview: Object.keys(diseaseData).slice(0, 3)
+    });
+
 
     return NextResponse.json(
       {
