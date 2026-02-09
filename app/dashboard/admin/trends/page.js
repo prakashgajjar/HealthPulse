@@ -101,10 +101,10 @@ function TrendsContent() {
   };
 
   return (
-    <div className="flex">
+    <>
       <Sidebar />
 
-      <main className="flex-1 min-h-screen bg-gray-50 p-8">
+      <main className="ml-72 min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto space-y-10">
           {/* ================= HEADER ================= */}
           <header className="flex justify-between items-center">
@@ -246,7 +246,7 @@ function TrendsContent() {
           </div>
         </div>
       </main>
-    </div>
+    </>
   );
 }
 

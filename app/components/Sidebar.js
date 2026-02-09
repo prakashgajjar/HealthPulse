@@ -33,13 +33,15 @@ export function Sidebar() {
     { href: '/dashboard/user', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/user/alerts', label: 'My Alerts', icon: Bell },
     { href: '/dashboard/user/health-info', label: 'Area Health Info', icon: HeartPulse },
+    { href: '/dashboard/user/risk-score', label: 'Risk Score Meter', icon: AlertCircle },
+    { href: '/dashboard/user/forecast', label: 'Health Forecast', icon: Zap },
   ];
 
   const links = user?.role === 'admin' ? adminLinks : userLinks;
   const isAdmin = user?.role === 'admin';
 
   return (
-    <aside className="w-72 min-h-screen bg-white border-r border-gray-200 flex flex-col">
+    <aside className="fixed left-0 top-0 w-72 h-screen bg-white border-r border-gray-200 flex flex-col shadow-lg z-40">
       {/* ================= BRAND ================= */}
       <div className="px-6 py-5 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900">

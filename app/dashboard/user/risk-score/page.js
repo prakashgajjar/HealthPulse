@@ -3,21 +3,21 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/app/components/Sidebar";
-import RiskScoreMeter from "@/app/components/RiskScoreMeter";
-import { AdminRoute } from "@/app/components/ProtectedRoute";
+import { ProtectedRoute } from "@/app/components/ProtectedRoute";
+import { useAuth } from "@/app/context/AuthContext";
 import {
   AlertCircle,
   TrendingUp,
   Activity,
   RefreshCw,
-  Zap,
   MapPin,
 } from "lucide-react";
 import axios from "axios";
 
-export default function RiskScorePage() {
+export default function UserRiskScorePage() {
+  const { user } = useAuth();
+  const [areaInput, setAreaInput] = useState(user?.area || "");
   const [area, setArea] = useState("");
-  const [areaInput, setAreaInput] = useState("");
   const [riskData, setRiskData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,34 +38,39 @@ export default function RiskScorePage() {
   };
 
   const fetchRiskScore = async () => {
-    if (!area) {
-      setError('Please enter an area first');
+    if (!area && !user?.area) {
+      setError("Please enter an area first");
       return;
     }
 
+    const searchArea = area || user?.area;
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('/api/ai/risk-score', {
-        area,
+      const response = await axios.post("/api/ai/risk-score", {
+        area: searchArea,
       });
 
-      console.log('Risk score response:', response);
-
-      // Extract data from response structure
       setRiskData(response.data.data);
     } catch (err) {
-      console.error('Error fetching risk score:', err);
-      setError('Failed to load risk score data');
+      console.error("Error fetching risk score:", err);
+      setError("Failed to load risk score data");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSearch = async () => {
-    setArea(areaInput);
+    if (areaInput) setArea(areaInput);
     await fetchRiskScore();
   };
+
+  useEffect(() => {
+    if (user?.area && !area) {
+      setArea(user.area);
+      setAreaInput(user.area);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (area) {
@@ -104,7 +109,7 @@ export default function RiskScorePage() {
   };
 
   return (
-    <AdminRoute>
+    <ProtectedRoute>
       <Sidebar />
       <div className="ml-72 min-h-screen bg-gray-50">
         <div className="flex-1 overflow-auto p-6 md:p-8">
@@ -124,10 +129,10 @@ export default function RiskScorePage() {
               </div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                  Health Risk Score Meter
+                  Health Risk Assessment
                 </h1>
                 <p className="text-sm text-gray-600 mt-1">
-                  Real-time disease risk assessment by area
+                  Check disease risk level for your area
                 </p>
               </div>
             </motion.div>
@@ -147,7 +152,7 @@ export default function RiskScorePage() {
               <div className="flex gap-3">
                 <input
                   type="text"
-                  placeholder="Enter area name or pincode (e.g. Patan, 384265)"
+                  placeholder="Enter area name or pincode"
                   className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition bg-white font-medium"
                   value={areaInput}
                   onChange={(e) => setAreaInput(e.target.value)}
@@ -161,7 +166,7 @@ export default function RiskScorePage() {
                   onClick={handleSearch}
                   className="px-6 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition shadow-md"
                 >
-                  Search
+                  Check Risk
                 </button>
                 {area && (
                   <button
@@ -206,9 +211,9 @@ export default function RiskScorePage() {
                     {/* Main Risk Score Card */}
                     <motion.div
                       className={`${getRiskBgColor(
-                        riskData.aggregateRiskLevel,
+                        riskData.aggregateRiskLevel
                       )} border-l-4 ${getRiskBorderColor(
-                        riskData.aggregateRiskLevel,
+                        riskData.aggregateRiskLevel
                       )} rounded-xl shadow-lg p-8 border`}
                       variants={itemVariants}
                     >
@@ -220,7 +225,7 @@ export default function RiskScorePage() {
                             </span>
                             <div>
                               <h3 className="text-2xl font-bold text-gray-900">
-                                Overall Risk Level
+                                Risk Level
                               </h3>
                               <p className="text-sm text-gray-600">{area}</p>
                             </div>
@@ -229,7 +234,7 @@ export default function RiskScorePage() {
                           <div className="mb-4">
                             <span
                               className={`inline-block text-2xl font-bold px-4 py-2 rounded-lg ${getRiskColor(
-                                riskData.aggregateRiskLevel,
+                                riskData.aggregateRiskLevel
                               )} bg-white border`}
                             >
                               {riskData.aggregateRiskLevel.toUpperCase()}
@@ -238,10 +243,10 @@ export default function RiskScorePage() {
 
                           <p className="text-gray-700 text-sm">
                             {riskData.aggregateRiskLevel === "high"
-                              ? "⚠️ High risk detected. Urgent preventive measures recommended."
+                              ? "⚠️ High risk detected. Take extra precautions."
                               : riskData.aggregateRiskLevel === "medium"
-                                ? "⚡ Moderate risk. Close monitoring advised."
-                                : "✅ Low risk. Continue preventive practices."}
+                                ? "⚡ Moderate risk. Stay aware and follow guidelines."
+                                : "✅ Low risk. Continue healthy practices."}
                           </p>
                         </div>
 
@@ -251,7 +256,7 @@ export default function RiskScorePage() {
                           </p>
                           <p
                             className={`text-5xl font-bold ${getRiskColor(
-                              riskData.aggregateRiskLevel,
+                              riskData.aggregateRiskLevel
                             )}`}
                           >
                             {riskData.aggregateRiskScore}
@@ -266,11 +271,11 @@ export default function RiskScorePage() {
                       <div className="mt-6">
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm font-semibold text-gray-700">
-                            Risk Score Progress
+                            Risk Progress
                           </span>
                           <span className="text-xs text-gray-600">
                             {Math.round(
-                              (riskData.aggregateRiskScore / 100) * 100,
+                              (riskData.aggregateRiskScore / 100) * 100
                             )}
                             %
                           </span>
@@ -307,14 +312,14 @@ export default function RiskScorePage() {
                             <AlertCircle className="text-red-600" size={20} />
                           </div>
                           <h4 className="font-semibold text-gray-800">
-                            Critical Diseases
+                            High Risk Diseases
                           </h4>
                         </div>
                         <p className="text-2xl font-bold text-red-600">
                           {riskData.diseaseCount?.high || 0}
                         </p>
                         <p className="text-xs text-gray-600 mt-2">
-                          High risk diseases detected
+                          Stay alert & take precautions
                         </p>
                       </motion.div>
 
@@ -328,14 +333,14 @@ export default function RiskScorePage() {
                             <TrendingUp className="text-yellow-600" size={20} />
                           </div>
                           <h4 className="font-semibold text-gray-800">
-                            Moderate Diseases
+                            Moderate Risk
                           </h4>
                         </div>
                         <p className="text-2xl font-bold text-yellow-600">
                           {riskData.diseaseCount?.medium || 0}
                         </p>
                         <p className="text-xs text-gray-600 mt-2">
-                          Moderate risk diseases detected
+                          Monitor closely
                         </p>
                       </motion.div>
 
@@ -356,36 +361,28 @@ export default function RiskScorePage() {
                           {riskData.diseaseCount?.low || 0}
                         </p>
                         <p className="text-xs text-gray-600 mt-2">
-                          Low risk diseases detected
+                          Good health status
                         </p>
                       </motion.div>
                     </motion.div>
 
-                    {/* Recommendations */}
+                    {/* Health Tips */}
                     <motion.div
                       className="bg-blue-50 border-l-4 border-blue-600 rounded-xl shadow-lg p-6"
                       variants={itemVariants}
                     >
                       <div className="flex items-center gap-3 mb-4">
-                        <Zap className="text-blue-600" size={22} />
+                        <AlertCircle className="text-blue-600" size={22} />
                         <h3 className="text-lg font-semibold text-gray-900">
-                          Recommended Actions
+                          Health Guidelines
                         </h3>
                       </div>
                       <ul className="space-y-2 text-sm text-gray-700">
-                        <li>
-                          ✓ Increase public awareness campaigns in the area
-                        </li>
-                        <li>
-                          ✓ Deploy medical intervention teams for testing and
-                          treatment
-                        </li>
-                        <li>✓ Implement environmental control measures</li>
-                        <li>✓ Monitor daily cases and adjust strategies</li>
-                        <li>
-                          ✓ Coordinate with health authorities for resource
-                          allocation
-                        </li>
+                        <li>✓ Maintain proper hygiene and sanitation</li>
+                        <li>✓ Stay updated with vaccination schedules</li>
+                        <li>✓ Use preventive measures like masks if needed</li>
+                        <li>✓ Seek medical help if symptoms appear</li>
+                        <li>✓ Stay informed through official health channels</li>
                       </ul>
                     </motion.div>
                   </motion.div>
@@ -404,14 +401,15 @@ export default function RiskScorePage() {
                   No Area Selected
                 </h3>
                 <p className="text-gray-600">
-                  Enter an area name or pincode above to view the risk score
-                  meter and disease risk assessment.
+                  {user?.area
+                    ? `Showing risk assessment for: ${user.area}`
+                    : "Enter your area and press Check Risk to view the health risk assessment."}
                 </p>
               </motion.div>
             )}
           </motion.div>
         </div>
       </div>
-    </AdminRoute>
+    </ProtectedRoute>
   );
 }

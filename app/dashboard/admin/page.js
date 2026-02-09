@@ -74,23 +74,23 @@ function AdminOverviewContent() {
   /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="flex">
+      <>
         <Sidebar />
-        <div className="flex-1 min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="ml-72 min-h-screen flex items-center justify-center bg-gray-50">
           <div className="flex items-center gap-3 text-gray-600">
             <Loader2 className="w-5 h-5 animate-spin" />
             <span className="text-sm font-medium">Loading analytics…</span>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="flex">
+    <>
       <Sidebar />
 
-      <main className="flex-1 min-h-screen bg-gray-50 px-8 py-6">
+      <main className="ml-72 min-h-screen bg-gray-50 px-8 py-6">
         <div className="max-w-7xl mx-auto space-y-10">
 
           {/* ================= PAGE HEADER ================= */}
@@ -221,7 +221,7 @@ function AdminOverviewContent() {
           )}
         </div>
       </main>
-    </div>
+    </>
   );
 }
 

@@ -30,10 +30,10 @@ export default function ForecastPage() {
 
   return (
     <AdminRoute>
-      <div className="flex h-screen bg-gray-50">
+      <>
         <Sidebar />
 
-        <div className="flex-1 overflow-auto p-6 md:p-8">
+        <div className="ml-72 min-h-screen overflow-auto p-6 md:p-8 bg-gray-50">
           <motion.div
             className="max-w-7xl mx-auto"
             variants={containerVariants}
@@ -238,7 +238,7 @@ export default function ForecastPage() {
             ) : null}
           </motion.div>
         </div>
-      </div>
+      </>
     </AdminRoute>
   );
 }
