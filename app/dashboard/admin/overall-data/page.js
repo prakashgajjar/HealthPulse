@@ -8,7 +8,23 @@ import { Sidebar } from "@/app/components/Sidebar";
 import { AdminRoute } from "@/app/components/ProtectedRoute";
 import { StatCard } from "@/app/components/Cards";
 import { TrendChart } from "@/app/components/Charts";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Legend, AreaChart, Area } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Legend,
+  AreaChart,
+  Area,
+} from "recharts";
+
+import {  Layers } from "lucide-react";
 
 import {
   TrendingUp,
@@ -104,7 +120,7 @@ function OverallDataContent() {
       const res = await axios.get("/api/analysis/trends", {
         params: { days: timePeriod, area: "BY_AREA" },
       });
-      
+
       // This would need a new API endpoint or modification
       // For now, we'll derive from disease data if available
     } catch (err) {
@@ -178,10 +194,7 @@ function OverallDataContent() {
           )}
 
           {/* ================= TIME PERIOD SELECTOR ================= */}
-          <motion.div
-            className="flex gap-3 flex-wrap"
-            variants={itemVariants}
-          >
+          <motion.div className="flex gap-3 flex-wrap" variants={itemVariants}>
             {[
               { label: "Last 7 Days", value: 7 },
               { label: "Last 30 Days", value: 30 },
@@ -256,8 +269,8 @@ function OverallDataContent() {
                 <AreaChart data={trendData}>
                   <defs>
                     <linearGradient id="colorCases" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#9333ea" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#9333ea" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#9333ea" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#9333ea" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -374,25 +387,81 @@ function OverallDataContent() {
           </motion.div>
 
           {/* ================= INFO PANEL ================= */}
+
           <motion.div
-            className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6"
             variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="
+    rounded-xl border border-purple-200 
+    bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 
+    p-6 shadow-sm hover:shadow-md
+  "
           >
-            <h3 className="font-semibold text-gray-900 mb-3">
-              📊 Data Insights
-            </h3>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li>
-                • <span className="font-medium">Total Cases:</span> {stats.totalCases} cases across all areas in the last {timePeriod} days
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <h3 className="text-base font-semibold text-gray-900">
+                Data Insights
+              </h3>
+            </div>
+
+            {/* Content */}
+            <ul className="space-y-3 text-lg text-gray-700">
+              <li className="flex items-start gap-3">
+                <Activity className="w-4 h-4 mt-1 text-blue-500" />
+                <span>
+                  <span className="font-medium text-gray-900">
+                    Total Cases:
+                  </span>{" "}
+                  <span className="font-semibold text-blue-700">
+                    {stats.totalCases}
+                  </span>{" "}
+                  cases across all areas in the last{" "}
+                  <span className="font-medium">{timePeriod}</span> days
+                </span>
               </li>
-              <li>
-                • <span className="font-medium">Peak Activity:</span> The highest single-day count was {stats.peakDay} cases
+
+              <li className="flex items-start gap-3">
+                <TrendingUp className="w-4 h-4 mt-1 text-red-500" />
+                <span>
+                  <span className="font-medium text-gray-900">
+                    Peak Activity:
+                  </span>{" "}
+                  Highest single-day count was{" "}
+                  <span className="font-semibold text-red-600">
+                    {stats.peakDay}
+                  </span>{" "}
+                  cases
+                </span>
               </li>
-              <li>
-                • <span className="font-medium">Daily Average:</span> {stats.avgDaily} cases per day on average
+
+              <li className="flex items-start gap-3">
+                <BarChart3 className="w-4 h-4 mt-1 text-green-600" />
+                <span>
+                  <span className="font-medium text-gray-900">
+                    Daily Average:
+                  </span>{" "}
+                  <span className="font-semibold text-green-700">
+                    {stats.avgDaily}
+                  </span>{" "}
+                  cases per day
+                </span>
               </li>
-              <li>
-                • <span className="font-medium">Disease Diversity:</span> {diseaseData.length} different diseases reported across the community
+
+              <li className="flex items-start gap-3">
+                <Layers className="w-4 h-4 mt-1 text-purple-600" />
+                <span>
+                  <span className="font-medium text-gray-900">
+                    Disease Diversity:
+                  </span>{" "}
+                  <span className="font-semibold text-purple-700">
+                    {diseaseData.length}
+                  </span>{" "}
+                  different diseases reported
+                </span>
               </li>
             </ul>
           </motion.div>
