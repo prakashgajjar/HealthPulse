@@ -32,7 +32,7 @@ export async function GET(request) {
       );
     }
 
-    if (days < 1 || days > 30) {
+    if (days <= 1 || days >= 30) {
       return NextResponse.json(
         { error: 'Days must be between 1 and 30' },
         { status: 400 }
