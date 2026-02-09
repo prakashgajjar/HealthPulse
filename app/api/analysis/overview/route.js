@@ -22,8 +22,15 @@ export async function GET(request) {
 
     // Check authentication
     const auth = await getAuthFromRequest(request);
-     const user = User.findById(auth.userId)
-    if (!auth && !user) {
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const user = await User.findById(auth.userId);
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

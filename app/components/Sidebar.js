@@ -14,6 +14,7 @@ import {
   Shield,
   Zap,
   AlertCircle,
+  BarChart3,
 } from 'lucide-react';
 
 export function Sidebar() {
@@ -24,6 +25,7 @@ export function Sidebar() {
     { href: '/dashboard/admin', label: 'Overview', icon: LayoutDashboard },
     { href: '/dashboard/admin/reports', label: 'Medical Reports', icon: FileText },
     { href: '/dashboard/admin/trends', label: 'Trends Analysis', icon: TrendingUp },
+    { href: '/dashboard/admin/overall-data', label: 'Overall Data', icon: BarChart3 },
     { href: '/dashboard/admin/risk-score', label: 'Risk Score Meter', icon: AlertCircle },
     { href: '/dashboard/admin/alerts', label: 'Alerts Management', icon: Bell },
     { href: '/dashboard/admin/forecast', label: 'Forecast & Simulator', icon: Zap },
@@ -32,7 +34,8 @@ export function Sidebar() {
   const userLinks = [
     { href: '/dashboard/user', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/user/alerts', label: 'My Alerts', icon: Bell },
-    { href: '/dashboard/user/health-info', label: 'Area Health Info', icon: HeartPulse },
+    { href: '/dashboard/user/health-info', label: 'Overall Health Info', icon: HeartPulse },
+    { href: '/dashboard/user/trends', label: 'Case Trends', icon: TrendingUp },
     { href: '/dashboard/user/risk-score', label: 'Risk Score Meter', icon: AlertCircle },
     { href: '/dashboard/user/forecast', label: 'Health Forecast', icon: Zap },
   ];
