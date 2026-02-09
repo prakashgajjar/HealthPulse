@@ -11,27 +11,8 @@ import { BarChart3, Target } from "lucide-react";
 export default function ForecastPage() {
   const [area, setArea] = useState("");
   const [disease, setDisease] = useState("");
-
-  const diseases = [
-    "Dengue",
-    "Malaria",
-    "COVID-19",
-    "Influenza",
-    "Chickenpox",
-    "Measles",
-    "Tuberculosis",
-    "Typhoid",
-    "Cholera",
-    "Hepatitis",
-  ];
-
-  const areas = [
-    { code: "110001", name: "Delhi" },
-    { code: "400001", name: "Mumbai" },
-    { code: "560001", name: "Bangalore" },
-    { code: "700001", name: "Kolkata" },
-    { code: "600001", name: "Chennai" },
-  ];
+  const [diseaseInput, setDiseaseInput] = useState("");
+  const [areaInput, setAreaInput] = useState("");
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -100,8 +81,14 @@ export default function ForecastPage() {
                     type="text"
                     placeholder="Enter area name or pincode (e.g. Patan or 384265)"
                     className="w-full border-2 border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition bg-white font-medium"
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
+                    value={areaInput}
+                    onChange={(e) => setAreaInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        setArea(areaInput);
+                        setDisease(diseaseInput);
+                      }
+                    }}
                   />
 
                   <p className="text-xs text-gray-500 mt-1">
@@ -119,8 +106,14 @@ export default function ForecastPage() {
                     type="text"
                     placeholder="Enter disease name (e.g. Dengue, Malaria, COVID-19)"
                     className="w-full border-2 border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition bg-white font-medium"
-                    value={disease}
-                    onChange={(e) => setDisease(e.target.value)}
+                    value={diseaseInput}
+                    onChange={(e) => setDiseaseInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        setArea(areaInput);
+                        setDisease(diseaseInput);
+                      }
+                    }}
                   />
 
                   <p className="text-xs text-gray-500 mt-1">
@@ -128,57 +121,69 @@ export default function ForecastPage() {
                   </p>
                 </motion.div>
               </div>
+
+              {/* Single Search Button */}
+              <motion.div variants={itemVariants} className="mt-6">
+                <button
+                  onClick={() => {
+                    setArea(areaInput);
+                    setDisease(diseaseInput);
+                  }}
+                  className="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition shadow-md"
+                >
+                  Search Forecast
+                </button>
+              </motion.div>
             </motion.div>
 
             {/* Feature Cards */}
             {!area || !disease ? (
-             <motion.div
-  className="grid md:grid-cols-3 gap-4 mb-8"
-  variants={containerVariants}
->
-  <motion.div
-    className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-lg border border-blue-200 hover:shadow-md transition"
-    variants={itemVariants}
-    whileHover={{ y: -2 }}
-  >
-    <BarChart3 className="w-8 h-8 text-blue-600 mb-2" />
-    <h3 className="font-semibold text-gray-800 mb-1">
-      Baseline Forecast
-    </h3>
-    <p className="text-sm text-gray-700">
-      AI predicts cases for 7–30 days
-    </p>
-  </motion.div>
+              <motion.div
+                className="grid md:grid-cols-3 gap-4 mb-8"
+                variants={containerVariants}
+              >
+                <motion.div
+                  className="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-lg border border-blue-200 hover:shadow-md transition"
+                  variants={itemVariants}
+                  whileHover={{ y: -2 }}
+                >
+                  <BarChart3 className="w-8 h-8 text-blue-600 mb-2" />
+                  <h3 className="font-semibold text-gray-800 mb-1">
+                    Baseline Forecast
+                  </h3>
+                  <p className="text-sm text-gray-700">
+                    AI predicts cases for 7–30 days
+                  </p>
+                </motion.div>
 
-  <motion.div
-    className="bg-gradient-to-br from-green-50 to-emerald-100 p-5 rounded-lg border border-green-200 hover:shadow-md transition"
-    variants={itemVariants}
-    whileHover={{ y: -2 }}
-  >
-    <Target className="w-8 h-8 text-green-600 mb-2" />
-    <h3 className="font-semibold text-gray-800 mb-1">
-      Intervention Sim
-    </h3>
-    <p className="text-sm text-gray-700">
-      Simulate preventive actions
-    </p>
-  </motion.div>
+                <motion.div
+                  className="bg-gradient-to-br from-green-50 to-emerald-100 p-5 rounded-lg border border-green-200 hover:shadow-md transition"
+                  variants={itemVariants}
+                  whileHover={{ y: -2 }}
+                >
+                  <Target className="w-8 h-8 text-green-600 mb-2" />
+                  <h3 className="font-semibold text-gray-800 mb-1">
+                    Intervention Sim
+                  </h3>
+                  <p className="text-sm text-gray-700">
+                    Simulate preventive actions
+                  </p>
+                </motion.div>
 
-  <motion.div
-    className="bg-gradient-to-br from-purple-50 to-indigo-100 p-5 rounded-lg border border-indigo-200 hover:shadow-md transition"
-    variants={itemVariants}
-    whileHover={{ y: -2 }}
-  >
-    <TrendingUp className="w-8 h-8 text-indigo-600 mb-2" />
-    <h3 className="font-semibold text-gray-800 mb-1">
-      Impact Analysis
-    </h3>
-    <p className="text-sm text-gray-700">
-      See cases prevented & reduction %
-    </p>
-  </motion.div>
-</motion.div>
-
+                <motion.div
+                  className="bg-gradient-to-br from-purple-50 to-indigo-100 p-5 rounded-lg border border-indigo-200 hover:shadow-md transition"
+                  variants={itemVariants}
+                  whileHover={{ y: -2 }}
+                >
+                  <TrendingUp className="w-8 h-8 text-indigo-600 mb-2" />
+                  <h3 className="font-semibold text-gray-800 mb-1">
+                    Impact Analysis
+                  </h3>
+                  <p className="text-sm text-gray-700">
+                    See cases prevented & reduction %
+                  </p>
+                </motion.div>
+              </motion.div>
             ) : null}
 
             {/* Simulator */}

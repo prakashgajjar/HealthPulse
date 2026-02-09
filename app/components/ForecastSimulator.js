@@ -13,7 +13,12 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { LineChart as LineChartIcon } from "lucide-react";
+import {
+  Calendar,
+  Leaf,
+  LineChart as LineChartIcon,
+  Stethoscope,
+} from "lucide-react";
 
 import axios from "axios";
 import { FiTrendingUp, FiCheckCircle, FiTarget } from "react-icons/fi";
@@ -188,8 +193,9 @@ export default function ForecastSimulator({ area, disease }) {
           {/* Awareness Level Slider */}
           <div>
             <div className="flex justify-between items-center mb-3">
-              <label className="font-semibold text-gray-700">
-                📢 Public Awareness Level
+              <label className="flex items-center gap-2 font-semibold text-gray-700">
+                <Megaphone className="w-5 h-5 text-blue-600" />
+                Public Awareness Level
               </label>
               <div className="flex items-center gap-2">
                 <span
@@ -227,7 +233,7 @@ export default function ForecastSimulator({ area, disease }) {
           {/* Medical Intervention Toggle */}
           <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🏥</span>
+              <Stethoscope className="w-8 h-8 text-emerald-600" />
               <div>
                 <p className="font-semibold text-gray-800">
                   Medical Intervention
@@ -263,7 +269,7 @@ export default function ForecastSimulator({ area, disease }) {
           {/* Environmental Control Toggle */}
           <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🌍</span>
+              <Leaf className="w-8 h-8 text-green-600" />
               <div>
                 <p className="font-semibold text-gray-800">
                   Environmental Control
@@ -298,8 +304,9 @@ export default function ForecastSimulator({ area, disease }) {
 
           {/* Forecast Days */}
           <div>
-            <label className="block font-semibold text-gray-700 mb-3">
-              📅 Forecast Period
+            <label className="flex items-center gap-2 font-semibold text-gray-700 mb-3">
+              <Calendar className="w-5 h-5 text-indigo-600" />
+              Forecast Period
             </label>
             <div className="flex gap-2">
               {[7, 14, 21, 30].map((days) => (
@@ -348,7 +355,10 @@ export default function ForecastSimulator({ area, disease }) {
                 Running Simulation...
               </span>
             ) : (
-              "▶️ Run Simulation"
+              <div className="flex items-center gap-2 justify-center font-semibold">
+                <Play className="w-5 h-5" />
+                Run Simulation
+              </div>
             )}
           </button>
         </div>
